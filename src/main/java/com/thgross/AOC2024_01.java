@@ -24,6 +24,7 @@ public class AOC2024_01 extends Application {
 
     }
 
+    @SuppressWarnings("SameParameterValue")
     private void calcAll(String inputFile) throws IOException {
 
         var lambdaContext = new Object() {
