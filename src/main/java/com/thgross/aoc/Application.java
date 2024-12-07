@@ -26,4 +26,9 @@ public abstract class Application {
 
         return dest;
     }
+
+    public static String trim(String input, String charsToTrim) {
+        String regex = "^[" + charsToTrim + "]+|[" + charsToTrim + "]+$";
+        return input.replaceAll(regex, "");
+    }
 }
