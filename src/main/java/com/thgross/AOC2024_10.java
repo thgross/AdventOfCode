@@ -21,6 +21,7 @@ public class AOC2024_10 extends Application {
         int trailheads, trailheadsScore, trailheadsRatings;
     }
 
+    // oben, rechts, unten, links
     private final int[][] dirs = {{-1, 0}, {0, 1}, {1, 0}, {0, -1}};
 
     private final AOC2024_10.Pdata lc = new AOC2024_10.Pdata();
@@ -68,7 +69,6 @@ public class AOC2024_10 extends Application {
                 }
             }
 
-            // Teil 1
             lc.trailheads = 0;
             lc.trailheadsScore = 0;
             lc.trailheadsRatings = 0;
@@ -77,8 +77,10 @@ public class AOC2024_10 extends Application {
                     if (lc.map[y][x] == 0) {
                         lc.trailheads++;
                         cleanMap(lc.map);
+                        // Teil 1
                         lc.trailheadsScore += calcScore(lc.map, y, x, false);
                         cleanMap(lc.map);
+                        // Teil 2
                         lc.trailheadsRatings += calcScore(lc.map, y, x, true);
                     }
                 }
