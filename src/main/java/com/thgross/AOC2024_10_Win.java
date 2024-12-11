@@ -34,6 +34,8 @@ public class AOC2024_10_Win extends Application {
         Graphics2D g;
         int gw = 20;
         int gh = 20;
+        int lastDrawX = -1;
+        int lastDrawY = -1;
 
         public Testframe() {
             setTitle("AOC2024_10");
@@ -161,8 +163,26 @@ public class AOC2024_10_Win extends Application {
     private void drawBox(int[][] map, int x, int y) {
         frame.g.setColor(new Color(200 - (map[y][x] % 10) * 20, 0, 0));
         frame.g.fillRect(50 + x * frame.gw, 80 + y * frame.gh, frame.gw, frame.gh);
+
+        if (frame.lastDrawX != -1 && frame.lastDrawY != -1) {
+            frame.g.setColor(Color.MAGENTA);
+            frame.g.setStroke(new BasicStroke(4));
+            frame.g.drawLine(
+                    50 + x * frame.gw + frame.gw / 2, 80 + y * frame.gh + frame.gh / 2,
+                    50 + frame.lastDrawX * frame.gw + frame.gw / 2, 80 + frame.lastDrawY * frame.gh + frame.gh / 2
+            );
+        }
+
         frame.g.setColor(Color.yellow);
-        frame.g.drawString(String.valueOf(map[y][x]), 50 + x * frame.gw + (int) (frame.gw * 0.3), 80 + y * frame.gh + 10  + (int) (frame.gh * 0.2));
+        frame.g.drawString(String.valueOf(map[y][x]), 50 + x * frame.gw + (int) (frame.gw * 0.3), 80 + y * frame.gh + 10 + (int) (frame.gh * 0.2));
+
+        if (map[y][x] == 0) {
+            frame.lastDrawX = -1;
+            frame.lastDrawY = -1;
+        } else {
+            frame.lastDrawX = x;
+            frame.lastDrawY = y;
+        }
     }
 
     private void cleanMap(int[][] map) {
