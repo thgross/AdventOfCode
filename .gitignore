@@ -2,7 +2,8 @@ target/
 !.mvn/wrapper/maven-wrapper.jar
 !**/src/main/**/target/
 !**/src/test/**/target/
-src/main/resources/input??.txt
+src/main/resources/input*
+!src/main/resources/input??-t*
 
 ### IntelliJ IDEA ###
 .idea/modules.xml

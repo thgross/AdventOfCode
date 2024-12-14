@@ -15,85 +15,59 @@ public class AOC2024_12 extends Application {
         (new AOC2024_12()).run();
     }
 
-    private static class VBorder implements Comparable<VBorder> {
-        int y, x;
-        int side;
+    private static final int BT_TOP = 0;
+    private static final int BT_BOTTOM = 4;
+    private static final int BT_LEFT = 2;
+    private static final int BT_RIGHT = 3;
 
-        public VBorder(int y, int x, int side) {
-            this.y = y;
-            this.x = x;
-            this.side = side;
+    /*
+     * d1 and d2 hold the value of one of the 2 dimensions: x or y.
+     * For vertical borders, d1 is filled with the x-value of the borders position and d2 ist filled with the
+     * y-value of the borders position. This is because for vertical lines (borders), the horizontal (x) distance
+     * between borders is more important. When two vertical borders have different x-values, they can never be on
+     * the same line.
+     * For horizontal borders, the y-value is the most significant.
+     * The 'equals' and 'compareTo'-Methods compare the most significant value (d1) first.
+     */
+    private static class Border implements Comparable<Border> {
+        int d1; // most significant Dimension
+        int d2; // least significant Dimension
+        int type;
+
+        public Border(int d1, int d2, int type) {
+            this.d1 = d1;
+            this.d2 = d2;
+            this.type = type;
         }
 
         @SuppressWarnings("EqualsDoesntCheckParameterClass")
         @Override
         public boolean equals(Object o) {
-            VBorder vBorder = (VBorder) o;
-            return y == vBorder.y && x == vBorder.x && side == vBorder.side;
+            Border border = (Border) o;
+            return d1 == border.d1 && d2 == border.d2 && type == border.type;
         }
 
         @Override
         public int hashCode() {
-            return Objects.hash(y, x, side);
+            return Objects.hash(d1, d2, type);
         }
 
         @Override
-        public int compareTo(VBorder b2) {
-            if (x < b2.x) {
+        public int compareTo(Border b2) {
+            if (d1 < b2.d1) {
                 return -1;
             }
-            if (x > b2.x) {
+            if (d1 > b2.d1) {
                 return 1;
             }
-            if (side < b2.side) {
+            if (type < b2.type) {
                 return -1;
             }
-            if (side > b2.side) {
-                return 1;
-            }
-            // ab hier ist x und die Seite gleich!
-            return Integer.compare(y, b2.y);
-        }
-    }
-
-    private static class HBorder implements Comparable<HBorder> {
-        int y, x;
-        int side;
-
-        public HBorder(int y, int x, int side) {
-            this.y = y;
-            this.x = x;
-            this.side = side;
-        }
-
-        @SuppressWarnings("EqualsDoesntCheckParameterClass")
-        @Override
-        public boolean equals(Object o) {
-            HBorder hBorder = (HBorder) o;
-            return y == hBorder.y && x == hBorder.x && side == hBorder.side;
-        }
-
-        @Override
-        public int hashCode() {
-            return Objects.hash(y, x, side);
-        }
-
-        @Override
-        public int compareTo(HBorder b2) {
-            if (y < b2.y) {
-                return -1;
-            }
-            if (y > b2.y) {
-                return 1;
-            }
-            if (side < b2.side) {
-                return -1;
-            }
-            if (side > b2.side) {
+            if (type > b2.type) {
                 return 1;
             }
             // ab hier ist y gleich!
-            return Integer.compare(x, b2.x);
+            return Integer.compare(d2, b2.d2);
         }
     }
 
@@ -175,10 +149,9 @@ public class AOC2024_12 extends Application {
         while (lc.emptyPos < lc.state.length) {
             int y = lc.emptyPos / lc.w;
             int x = lc.emptyPos % lc.w;
-            var bListV = new TreeSet<VBorder>();
-            var bListH = new TreeSet<HBorder>();
-            var cost = floodfill(y, x, lc.map[y][x], bListH, bListV);
-            var sides = calcSides(bListH, bListV);
+            var borderList = new TreeSet<Border>();
+            var cost = floodfill(y, x, lc.map[y][x], borderList);
+            var sides = calcSides(borderList);
             price1 += cost.area * cost.perimeter;
             price2 += cost.area * sides;
             System.out.printf("%s: %3d t / %3d b / %4d s | P1: %5d | P2: %5d\n", lc.map[y][x], cost.area, cost.perimeter, sides, cost.area * cost.perimeter, cost.area * sides);
@@ -190,33 +163,20 @@ public class AOC2024_12 extends Application {
         System.out.printf("Part 2 Price: %d\n", price2);
     }
 
-    private int calcSides(TreeSet<HBorder> hBorders, TreeSet<VBorder> vBorders) {
+    private int calcSides(TreeSet<Border> borders) {
 
         int sides = 0;
         // horizontale Ränder
-        var sortedHBorders = hBorders.stream().sorted();
-        Iterator<HBorder> itrH = sortedHBorders.iterator();
-        var lastHBorder = new HBorder(-1, -1, -1);
-        while (itrH.hasNext()) {
-            var current = itrH.next();
-            if (current.y != lastHBorder.y || current.side != lastHBorder.side || current.x != lastHBorder.x + 1) {
+        var sortedBorders = borders.stream().sorted();
+        Iterator<Border> iterator = sortedBorders.iterator();
+        var lastBorder = new Border(-1, -1, -1);
+        while (iterator.hasNext()) {
+            var current = iterator.next();
+            if (current.d1 != lastBorder.d1 || current.type != lastBorder.type || current.d2 != lastBorder.d2 + 1) {
                 sides += 1;
             }
-            lastHBorder = current;
+            lastBorder = current;
         }
-
-        // vertikale Ränder
-        var sortedVBorders = vBorders.stream().sorted();
-        Iterator<VBorder> itrV = sortedVBorders.iterator();
-        var lastVBorder = new VBorder(-1, -1, -1);
-        while (itrV.hasNext()) {
-            var current = itrV.next();
-            if (current.x != lastVBorder.x || current.side != lastVBorder.side || current.y != lastVBorder.y + 1) {
-                sides += 1;
-            }
-            lastVBorder = current;
-        }
-
 
         return sides;
     }
@@ -232,7 +192,7 @@ public class AOC2024_12 extends Application {
         return i;
     }
 
-    private Cost floodfill(int y, int x, char plant, TreeSet<HBorder> hBorders, TreeSet<VBorder> vBorders) {
+    private Cost floodfill(int y, int x, char plant, TreeSet<Border> borders) {
 
         if (y < 0 || y >= lc.h || x < 0 || x >= lc.w) {
             return new Cost(0, 0);
@@ -247,27 +207,27 @@ public class AOC2024_12 extends Application {
         var perimeter = 0;
         if (y - 1 < 0 || lc.map[y - 1][x] != plant) {
             perimeter++;
-            hBorders.add(new HBorder(y, x, 0));
+            borders.add(new Border(y, x, BT_TOP));
         }
         if (y + 1 >= lc.h || lc.map[y + 1][x] != plant) {
             perimeter++;
-            hBorders.add(new HBorder(y + 1, x, 1));
+            borders.add(new Border(y + 1, x, BT_BOTTOM));
         }
         if (x - 1 < 0 || lc.map[y][x - 1] != plant) {
             perimeter++;
-            vBorders.add(new VBorder(y, x, 0));
+            borders.add(new Border(x - 1, y, BT_LEFT));
         }
         if (x + 1 >= lc.w || lc.map[y][x + 1] != plant) {
             perimeter++;
-            vBorders.add(new VBorder(y, x + 1, 1));
+            borders.add(new Border(x + 1, y, BT_RIGHT));
         }
 
         var ret = new Cost(1, perimeter);
 
-        ret.add(floodfill(y - 1, x, plant, hBorders, vBorders));
-        ret.add(floodfill(y, x + 1, plant, hBorders, vBorders));
-        ret.add(floodfill(y + 1, x, plant, hBorders, vBorders));
-        ret.add(floodfill(y, x - 1, plant, hBorders, vBorders));
+        ret.add(floodfill(y - 1, x, plant, borders));
+        ret.add(floodfill(y, x + 1, plant, borders));
+        ret.add(floodfill(y + 1, x, plant, borders));
+        ret.add(floodfill(y, x - 1, plant, borders));
 
         return ret;
     }
