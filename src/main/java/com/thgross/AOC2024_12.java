@@ -88,7 +88,7 @@ public class AOC2024_12 extends Application {
 
     static class Pdata {
         char[][] map;
-        byte[] state;
+        int[] state;
         int emptyPos;
         int w, h;
         Instant start;
@@ -133,8 +133,8 @@ public class AOC2024_12 extends Application {
         lc.h = slines.size();
         lc.w = slines.getFirst().length();
         lc.map = new char[lc.h][lc.w];
-        lc.state = new byte[lc.h * lc.w];
-        Arrays.fill(lc.state, (byte) 0);
+        lc.state = new int[lc.h * lc.w];
+        Arrays.fill(lc.state, 0);
 
         lc.emptyPos = 0;
 
@@ -146,11 +146,12 @@ public class AOC2024_12 extends Application {
 
         var price1 = 0;
         var price2 = 0;
+        var areaId = 0;
         while (lc.emptyPos < lc.state.length) {
             int y = lc.emptyPos / lc.w;
             int x = lc.emptyPos % lc.w;
             var borderList = new TreeSet<Border>();
-            var cost = floodfill(y, x, lc.map[y][x], borderList);
+            var cost = floodfill(y, x, lc.map[y][x], borderList, ++areaId);
             var sides = calcSides(borderList);
             price1 += cost.area * cost.perimeter;
             price2 += cost.area * sides;
@@ -158,6 +159,8 @@ public class AOC2024_12 extends Application {
             lc.emptyPos = findEmptyPos(lc.emptyPos);
         }
         System.out.println();
+
+        dumpMap(lc);
 
         System.out.printf("Part 1 Price: %d\n", price1);
         System.out.printf("Part 2 Price: %d\n", price2);
@@ -192,7 +195,7 @@ public class AOC2024_12 extends Application {
         return i;
     }
 
-    private Cost floodfill(int y, int x, char plant, TreeSet<Border> borders) {
+    private Cost floodfill(int y, int x, char plant, TreeSet<Border> borders, int areaId) {
 
         if (y < 0 || y >= lc.h || x < 0 || x >= lc.w) {
             return new Cost(0, 0);
@@ -202,7 +205,7 @@ public class AOC2024_12 extends Application {
         }
 
         // neues Element besetzen
-        lc.state[y * lc.w + x] = 1;
+        lc.state[y * lc.w + x] = areaId;
 
         var perimeter = 0;
         if (y - 1 < 0 || lc.map[y - 1][x] != plant) {
@@ -224,11 +227,70 @@ public class AOC2024_12 extends Application {
 
         var ret = new Cost(1, perimeter);
 
-        ret.add(floodfill(y - 1, x, plant, borders));
-        ret.add(floodfill(y, x + 1, plant, borders));
-        ret.add(floodfill(y + 1, x, plant, borders));
-        ret.add(floodfill(y, x - 1, plant, borders));
+        ret.add(floodfill(y - 1, x, plant, borders, areaId));
+        ret.add(floodfill(y, x + 1, plant, borders, areaId));
+        ret.add(floodfill(y + 1, x, plant, borders, areaId));
+        ret.add(floodfill(y, x - 1, plant, borders, areaId));
 
         return ret;
+    }
+
+    private void dumpMap(Pdata lc) {
+        final String ANSI_RESET = "\u001B[0m";
+        final String ANSI_BLACK = "\u001B[30m";
+        final String ANSI_RED = "\u001B[31m";
+        final String ANSI_GREEN = "\u001B[32m";
+        final String ANSI_YELLOW = "\u001B[33m";
+        final String ANSI_BLUE = "\u001B[34m";
+        final String ANSI_PURPLE = "\u001B[35m";
+        final String ANSI_CYAN = "\u001B[36m";
+        final String ANSI_WHITE = "\u001B[37m";
+
+        final String ANSI_BLACK_BACKGROUND = "\u001B[40m";
+        final String ANSI_RED_BACKGROUND = "\u001B[41m";
+        final String ANSI_GREEN_BACKGROUND = "\u001B[42m";
+        final String ANSI_YELLOW_BACKGROUND = "\u001B[43m";
+        final String ANSI_BLUE_BACKGROUND = "\u001B[44m";
+        final String ANSI_PURPLE_BACKGROUND = "\u001B[45m";
+        final String ANSI_CYAN_BACKGROUND = "\u001B[46m";
+        final String ANSI_WHITE_BACKGROUND = "\u001B[47m";
+        final String BLACK_BACKGROUND_BRIGHT = "\033[0;100m";// BLACK
+        final String RED_BACKGROUND_BRIGHT = "\033[0;101m";// RED
+        final String GREEN_BACKGROUND_BRIGHT = "\033[0;102m";// GREEN
+        final String YELLOW_BACKGROUND_BRIGHT = "\033[0;103m";// YELLOW
+        final String BLUE_BACKGROUND_BRIGHT = "\033[0;104m";// BLUE
+        final String PURPLE_BACKGROUND_BRIGHT = "\033[0;105m"; // PURPLE
+        final String CYAN_BACKGROUND_BRIGHT = "\033[0;106m";  // CYAN
+        final String WHITE_BACKGROUND_BRIGHT = "\033[0;107m";   // WHITE
+
+        String[] bglist = new String[]{
+                ANSI_RED_BACKGROUND,
+                ANSI_GREEN_BACKGROUND,
+                ANSI_YELLOW_BACKGROUND,
+                ANSI_BLUE_BACKGROUND,
+                ANSI_PURPLE_BACKGROUND,
+                ANSI_CYAN_BACKGROUND,
+                ANSI_WHITE_BACKGROUND/*,
+                BLACK_BACKGROUND_BRIGHT,
+                RED_BACKGROUND_BRIGHT,
+                GREEN_BACKGROUND_BRIGHT,
+                YELLOW_BACKGROUND_BRIGHT,
+                BLUE_BACKGROUND_BRIGHT,
+                PURPLE_BACKGROUND_BRIGHT,
+                CYAN_BACKGROUND_BRIGHT,
+                WHITE_BACKGROUND_BRIGHT*/
+        };
+
+        for (var y = 0; y < lc.h; y++) {
+            for (var x = 0; x < lc.w; x++) {
+                System.out.print(ANSI_BLACK);
+                System.out.print(bglist[lc.state[y * lc.w + x] % bglist.length]);
+                System.out.print(lc.map[y][x]);
+                System.out.print(" ");
+                System.out.print(ANSI_RESET);
+            }
+            System.out.println();
+        }
+        System.out.print(ANSI_RESET);
     }
 }
