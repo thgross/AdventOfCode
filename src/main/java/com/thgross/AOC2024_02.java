@@ -25,6 +25,8 @@ public class AOC2024_02 extends Application {
 
     }
 
+    public boolean dump = true;
+
     @SuppressWarnings("SameParameterValue")
     private void calcAll(String inputFile) throws IOException {
 
@@ -62,19 +64,24 @@ public class AOC2024_02 extends Application {
         assert lc.lineNumber == 1000;
 
         // Teil 1
+        dump = false;
         for (int report = 0; report < MAXREPORTS; report++) {
 
-            var reportSafe = isReportSafe(lc.values[report], false);
+            var reportSafe = isReportSafe(lc.values[report], report, false);
 
             if (reportSafe) {
                 lc.totalReportsSafe++;
             }
         }
+        dump = true;
 
         // Teil 2
         for (int report = 0; report < MAXREPORTS; report++) {
 
-            var reportSafe = isReportSafe(lc.values[report], true);
+            var reportSafe = isReportSafe(lc.values[report], report, true);
+            if (dump) {
+                System.out.println();
+            }
 
             if (reportSafe) {
                 lc.totalReportsSafeWithDampener++;
@@ -85,24 +92,96 @@ public class AOC2024_02 extends Application {
         System.out.printf("Total Safe with Dumpener: %d\n", lc.totalReportsSafeWithDampener);
     }
 
-    private boolean isReportSafe(int[] report, boolean enableDampener) {
+    private void dumpReport(int[] report, int reportNr, boolean safe, int variantnr, int unsafeVal) {
 
-        var reportSafe = isReportSafe(report);
+        final String ANSI_RESET = "\u001B[0m";
+        final String ANSI_BLACK = "\u001B[30m";
+        final String ANSI_RED = "\u001B[31m";
+        final String ANSI_GREEN = "\u001B[32m";
+        final String ANSI_YELLOW = "\u001B[33m";
+        final String ANSI_BLUE = "\u001B[34m";
+        final String ANSI_PURPLE = "\u001B[35m";
+        final String ANSI_CYAN = "\u001B[36m";
+        final String ANSI_WHITE = "\u001B[37m";
 
-        if (!reportSafe && enableDampener) {
+        final String ANSI_BLACK_BACKGROUND = "\u001B[40m";
+        final String ANSI_RED_BACKGROUND = "\u001B[41m";
+        final String ANSI_GREEN_BACKGROUND = "\u001B[42m";
+        final String ANSI_YELLOW_BACKGROUND = "\u001B[43m";
+        final String ANSI_BLUE_BACKGROUND = "\u001B[44m";
+        final String ANSI_PURPLE_BACKGROUND = "\u001B[45m";
+        final String ANSI_CYAN_BACKGROUND = "\u001B[46m";
+        final String ANSI_WHITE_BACKGROUND = "\u001B[47m";
+        final String BLACK_BACKGROUND_BRIGHT = "\033[0;100m";// BLACK
+        final String RED_BACKGROUND_BRIGHT = "\033[0;101m";// RED
+        final String GREEN_BACKGROUND_BRIGHT = "\033[0;102m";// GREEN
+        final String YELLOW_BACKGROUND_BRIGHT = "\033[0;103m";// YELLOW
+        final String BLUE_BACKGROUND_BRIGHT = "\033[0;104m";// BLUE
+        final String PURPLE_BACKGROUND_BRIGHT = "\033[0;105m"; // PURPLE
+        final String CYAN_BACKGROUND_BRIGHT = "\033[0;106m";  // CYAN
+        final String WHITE_BACKGROUND_BRIGHT = "\033[0;107m";   // WHITE
+
+        System.out.printf("%4d: ", reportNr);
+        if (safe) {
+            if (unsafeVal > -1) {
+                System.out.print("  " + ANSI_BLUE_BACKGROUND + ANSI_BLACK + "  SAFE  " + ANSI_RESET);
+            } else {
+                System.out.print("  " + ANSI_GREEN_BACKGROUND + ANSI_BLACK + "  SAFE  " + ANSI_RESET);
+            }
+        } else {
+            System.out.print("  " + ANSI_RED_BACKGROUND + ANSI_BLACK + " UNSAFE " + ANSI_RESET);
+        }
+/*
+        if (variantnr == -1) {
+            System.out.print(ANSI_BLUE_BACKGROUND + ANSI_BLACK + " ORIG " + ANSI_RESET);
+        } else {
+            System.out.print(ANSI_BLUE_BACKGROUND + ANSI_BLACK + " V" + (variantnr + 1) + " " + ANSI_RESET);
+        }
+*/
+
+        for (int i = 0; i < report.length; i++) {
+            if (report[i] != 0) {
+                if (i == unsafeVal) {
+                    System.out.print(ANSI_RED);
+                }
+                System.out.printf(" %2d", report[i]);
+                if (i == unsafeVal) {
+                    System.out.print(ANSI_RESET);
+                }
+            } else {
+                System.out.print("   ");
+            }
+        }
+    }
+
+    private boolean isReportSafe(int[] report, int reportNr, boolean enableDampener) {
+
+        var originalSafe = isReportSafe(report);
+        var varianteSafe = false;
+
+        if (!originalSafe && enableDampener) {
             // Varianten erzeugen und testen
             for (int valnr = 0; valnr < report.length; valnr++) {
                 var variante = removeElement(report, valnr);
 
-                reportSafe = isReportSafe(variante);
-                if (reportSafe) {
+                varianteSafe = isReportSafe(variante);
+                if (varianteSafe) {
+                    if (dump) {
+                        dumpReport(report, reportNr, true, -1, valnr);
+//                        dumpReport(variante, varianteSafe, valnr, -1);
+                    }
                     // Es wurde eine sichere Variante gefunden!
+                    originalSafe = varianteSafe;
                     break;
                 }
             }
         }
 
-        return reportSafe;
+        if (!varianteSafe && dump) {
+            dumpReport(report, reportNr, originalSafe, -1, -1);
+        }
+
+        return originalSafe;
     }
 
     private boolean isReportSafe(int[] report) {
