@@ -5,13 +5,36 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
+import java.time.Duration;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Stream;
 
 public abstract class Application {
 
-    public abstract void run();
+    Instant start;
+    Instant stop;
+    protected String inputFilename;
+
+    public void run() {
+    }
+
+    public void run(String inputFilename) {
+        try {
+            start = Instant.now();
+            calcAll(getFileLines(inputFilename));
+            stop = Instant.now();
+
+            System.out.println("======================================");
+            System.out.printf("Runtime: %s\n", Duration.between(start, stop));
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    protected void calcAll(List<String> fileLines) throws IOException {
+    }
 
     protected InputStream getFileAsInputStream(String filename) {
         ClassLoader classloader = Thread.currentThread().getContextClassLoader();
