@@ -5,6 +5,8 @@ import com.thgross.aoc.Application;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.time.Duration;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.stream.Stream;
 
@@ -45,7 +47,12 @@ public class AOC2024_06 extends Application {
     @Override
     public void run() {
         try {
+            var start = Instant.now();
             calcAll("input06.txt");
+            var stop = Instant.now();
+
+            System.out.println("======================================");
+            System.out.printf("Runtime: %s\n", Duration.between(start, stop));
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
