@@ -19,12 +19,17 @@ public class AOC2024_15 extends Application {
     static final char WALL = '#';
     static final char FLOOR = '.';
     static final char BOX = 'O';
+    static final char BOX2L = '[';
+    static final char BOX2R = ']';
     static final char ROBOT = '@';
 
     static class Pdata {
         int mapW, mapH;
+        int map2W, map2H;
         char[][] map;
+        char[][] map2;
         Pos robotPos = new Pos();
+        Pos robot2Pos = new Pos();
         List<Integer> robotRules = new ArrayList<>();
     }
 
@@ -53,6 +58,9 @@ public class AOC2024_15 extends Application {
             }
         }
 
+//        openWindow("AOC 2024 Day 15", lc.mapW * tilesize.x, lc.mapH * tilesize.y);
+
+        // Part 1
         // parse map
         lc.mapW = maplines.getFirst().length();
         lc.mapH = maplines.size();
@@ -68,23 +76,57 @@ public class AOC2024_15 extends Application {
             }
         }
 
-        openWindow("AOC 2024 Day 15", lc.mapW * tilesize.x, lc.mapH * tilesize.y);
-
-        System.out.println("Initial Map:");
+        System.out.println("Initial Map 1:");
         dumpMap(lc.map);
-        drawMap(lc.map, winframe.g);
+//        drawMap(lc.map, winframe.g);
 
-        // Teil 1
         for (int i = 0; i < lc.robotRules.size(); i++) {
             lc.robotPos = moveCharOnMap(lc.map, lc.robotPos, lc.robotRules.get(i));
         }
-        System.out.println("Final Map:");
+        System.out.println("Final Map 1:");
         dumpMap(lc.map);
-
         long sumOfCoordinates = calcSumOfBoxCoordinates(lc.map);
 
-        System.out.println("------------------------------");
-        System.out.printf("sum of coordinates: %d\n", sumOfCoordinates);
+        // Part 2
+        // parse map
+        lc.map2W = maplines.getFirst().length() * 2;
+        lc.map2H = maplines.size();
+        lc.map2 = new char[lc.map2H][lc.map2W];
+        for (int y = 0; y < maplines.size(); y++) {
+            var mapline = maplines.get(y);
+            for (int x = 0; x < mapline.length(); x++) {
+                char tile = mapline.charAt(x);
+                switch (tile) {
+                    case '#':
+                        lc.map2[y][x * 2] = tile;
+                        lc.map2[y][x * 2 + 1] = tile;
+                        break;
+                    case 'O':
+                        lc.map2[y][x * 2] = BOX2L;
+                        lc.map2[y][x * 2 + 1] = BOX2R;
+                        break;
+                    case '.':
+                        lc.map2[y][x * 2] = FLOOR;
+                        lc.map2[y][x * 2 + 1] = FLOOR;
+                        break;
+                    case '@':
+                        lc.map2[y][x * 2] = ROBOT;
+                        lc.map2[y][x * 2 + 1] = FLOOR;
+                        break;
+                }
+                if (lc.map2[y][x*2] == ROBOT) {
+                    lc.robot2Pos.x = x*2;
+                    lc.robot2Pos.y = y;
+                }
+            }
+        }
+        System.out.println("Initial Map 2:");
+        dumpMap(lc.map2);
+//        drawMap(lc.map2, winframe.g);
+
+
+        System.out.println("----------------------------------");
+        System.out.printf("Part 1 sum of coordinates: %d\n", sumOfCoordinates);
     }
 
     long calcSumOfBoxCoordinates(char[][] map) {
@@ -137,6 +179,8 @@ public class AOC2024_15 extends Application {
                     case WALL -> ANSI_GREEN;
                     case FLOOR -> ANSI_BLUE;
                     case BOX -> ANSI_YELLOW;
+                    case BOX2L -> ANSI_YELLOW;
+                    case BOX2R -> ANSI_YELLOW;
                     case ROBOT -> ANSI_RED;
                     default -> throw new RuntimeException("unknown map tile " + map[y][x]);
                 });
@@ -146,6 +190,9 @@ public class AOC2024_15 extends Application {
     }
 
     private void drawMap(char[][] map, Graphics2D g) {
+        if(g == null) {
+            return;
+        }
         for (int y = 0; y < map.length; y++) {
             for (int x = 0; x < map[y].length; x++) {
 
