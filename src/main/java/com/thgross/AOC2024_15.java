@@ -114,8 +114,8 @@ public class AOC2024_15 extends Application {
                         lc.map2[y][x * 2 + 1] = FLOOR;
                         break;
                 }
-                if (lc.map2[y][x*2] == ROBOT) {
-                    lc.robot2Pos.x = x*2;
+                if (lc.map2[y][x * 2] == ROBOT) {
+                    lc.robot2Pos.x = x * 2;
                     lc.robot2Pos.y = y;
                 }
             }
@@ -123,10 +123,12 @@ public class AOC2024_15 extends Application {
         System.out.println("Initial Map 2:");
         dumpMap(lc.map2);
 //        drawMap(lc.map2, winframe.g);
+        long sumOfCoordinates2 = calcSumOfBoxCoordinates(lc.map2);
 
 
         System.out.println("----------------------------------");
         System.out.printf("Part 1 sum of coordinates: %d\n", sumOfCoordinates);
+        System.out.printf("Part 2 sum of coordinates: %d\n", sumOfCoordinates2);
     }
 
     long calcSumOfBoxCoordinates(char[][] map) {
@@ -134,7 +136,7 @@ public class AOC2024_15 extends Application {
 
         for (int y = 0; y < map.length; y++) {
             for (int x = 0; x < map[y].length; x++) {
-                if (map[y][x] == BOX) {
+                if (map[y][x] == BOX || map[y][x] == BOX2L) {
                     sum += y * 100L + x;
                 }
             }
@@ -175,22 +177,32 @@ public class AOC2024_15 extends Application {
         for (int y = 0; y < map.length; y++) {
             for (int x = 0; x < map[y].length; x++) {
 
-                printChar(map[y][x], switch (map[y][x]) {
-                    case WALL -> ANSI_GREEN;
-                    case FLOOR -> ANSI_BLUE;
-                    case BOX -> ANSI_YELLOW;
-                    case BOX2L -> ANSI_YELLOW;
-                    case BOX2R -> ANSI_YELLOW;
-                    case ROBOT -> ANSI_RED;
-                    default -> throw new RuntimeException("unknown map tile " + map[y][x]);
-                });
+                printChar(map[y][x],
+                        switch (map[y][x]) {
+                            case WALL -> ANSI_GREEN;
+                            case FLOOR -> ANSI_BLUE;
+                            case BOX -> ANSI_YELLOW;
+                            case BOX2L -> ANSI_YELLOW;
+                            case BOX2R -> ANSI_YELLOW;
+                            case ROBOT -> ANSI_RED;
+                            default -> throw new RuntimeException("unknown map tile " + map[y][x]);
+                        },
+                        switch (map[y][x]) {
+                            case WALL -> ANSI_BLACK_BACKGROUND;
+                            case FLOOR -> ANSI_BLACK_BACKGROUND;
+                            case BOX -> ANSI_BLACK_BACKGROUND;
+                            case BOX2L -> ANSI_BLACK_BACKGROUND;
+                            case BOX2R -> ANSI_BLACK_BACKGROUND;
+                            case ROBOT -> ANSI_BLACK_BACKGROUND;
+                            default -> throw new RuntimeException("unknown map tile " + map[y][x]);
+                        });
             }
             System.out.println();
         }
     }
 
     private void drawMap(char[][] map, Graphics2D g) {
-        if(g == null) {
+        if (g == null) {
             return;
         }
         for (int y = 0; y < map.length; y++) {

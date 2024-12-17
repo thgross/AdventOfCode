@@ -169,4 +169,8 @@ public abstract class Application {
         printChar(ch);
         System.out.print(ANSI_RESET);
     }
+    protected void printChar(char ch, String color, String bgcolor) {
+        System.out.print(bgcolor);
+        printChar(ch, color);
+    }
 }
