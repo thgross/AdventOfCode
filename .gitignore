@@ -4,6 +4,8 @@ target/
 !**/src/test/**/target/
 src/main/resources/input*
 !src/main/resources/input??-t*
+_tmp/image-*.*
+_tmp/*.mp4
 
 ### IntelliJ IDEA ###
 .idea/modules.xml

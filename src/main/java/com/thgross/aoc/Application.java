@@ -1,5 +1,8 @@
 package com.thgross.aoc;
 
+import com.sun.jdi.event.EventQueue;
+import com.thgross.AOC2024_12;
+
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
@@ -9,6 +12,7 @@ import java.time.Duration;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Stream;
 
 public abstract class Application {
@@ -44,7 +48,7 @@ public abstract class Application {
     protected final String CYAN_BACKGROUND_BRIGHT = "\033[0;106m";  // CYAN
     protected final String WHITE_BACKGROUND_BRIGHT = "\033[0;107m";   // WHITE
 
-    protected static class Pos {
+    protected static class Pos implements Comparable<Pos> {
         public int y, x;
 
         public Pos() {
@@ -75,6 +79,35 @@ public abstract class Application {
 
         public boolean isEqualTo(Pos otherPos) {
             return y == otherPos.y && x == otherPos.x;
+        }
+
+        public void clone(Pos pos) {
+            y = pos.y;
+            x = pos.x;
+        }
+
+        @SuppressWarnings("EqualsDoesntCheckParameterClass")
+        @Override
+        public boolean equals(Object o) {
+            Pos pos = (Pos) o;
+            return y == pos.y && x == pos.x;
+        }
+
+        @Override
+        public int hashCode() {
+            return Objects.hash(y, x);
+        }
+
+        @Override
+        public int compareTo(Pos p2) {
+            if (y < p2.y) {
+                return -1;
+            }
+            if (y > p2.y) {
+                return 1;
+            }
+            // ab hier ist y gleich!
+            return Integer.compare(x, p2.x);
         }
     }
 
@@ -169,6 +202,7 @@ public abstract class Application {
         printChar(ch);
         System.out.print(ANSI_RESET);
     }
+
     protected void printChar(char ch, String color, String bgcolor) {
         System.out.print(bgcolor);
         printChar(ch, color);

@@ -2,15 +2,19 @@ package com.thgross;
 
 import com.thgross.aoc.Application;
 
+import javax.imageio.ImageIO;
 import java.awt.*;
+import java.awt.image.BufferedImage;
+import java.io.File;
 import java.io.IOException;
-import java.util.ArrayList;
+import java.util.*;
 import java.util.List;
+import java.util.stream.Collectors;
 
 public class AOC2024_15 extends Application {
     public static void main(String[] args) {
 
-        var inputfile = "input15-t1.txt";
+        var inputfile = "input15.txt";
         var app = (new AOC2024_15());
 //        app.openWindow(inputfile, 1000, 1000);
         app.run(inputfile);
@@ -36,6 +40,29 @@ public class AOC2024_15 extends Application {
     private final AOC2024_15.Pdata lc = new AOC2024_15.Pdata();
 
     Pos tilesize = new Pos(16, 16);
+    Pos tilesize2 = new Pos(16, 8);
+
+    protected final char[] dirchars = {
+            '^', '>', 'v', '<'
+    };
+
+    BufferedImage bi;
+    Graphics2D g2d;
+
+    Map<Character, Color> tileColors = new HashMap<>() {{
+        put(WALL, new Color(0, 150, 0));
+        put(FLOOR, new Color(50, 50, 255));
+        put(BOX, new Color(160, 160, 0));
+        put(BOX2L, new Color(160, 160, 0));
+        put(BOX2R, new Color(160, 160, 0));
+        put(ROBOT, new Color(255, 0, 0));
+    }};
+
+    private static class WandException extends Exception {
+        public WandException(String message) {
+            super(message);
+        }
+    }
 
     @SuppressWarnings("SameParameterValue")
     @Override
@@ -77,14 +104,14 @@ public class AOC2024_15 extends Application {
         }
 
         System.out.println("Initial Map 1:");
-        dumpMap(lc.map);
+        dumpMap(lc.map, null);
 //        drawMap(lc.map, winframe.g);
 
         for (int i = 0; i < lc.robotRules.size(); i++) {
             lc.robotPos = moveCharOnMap(lc.map, lc.robotPos, lc.robotRules.get(i));
         }
         System.out.println("Final Map 1:");
-        dumpMap(lc.map);
+        dumpMap(lc.map, null);
         long sumOfCoordinates = calcSumOfBoxCoordinates(lc.map);
 
         // Part 2
@@ -121,14 +148,64 @@ public class AOC2024_15 extends Application {
             }
         }
         System.out.println("Initial Map 2:");
-        dumpMap(lc.map2);
+        dumpMap(lc.map2, null);
+        bi = new BufferedImage(lc.map2W * tilesize2.x, lc.map2H * tilesize2.y, BufferedImage.TYPE_INT_RGB);
+        g2d = (Graphics2D) bi.getGraphics();
+        saveMapImage(lc.map2, 0, bi, g2d, tilesize2);
 //        drawMap(lc.map2, winframe.g);
-        long sumOfCoordinates2 = calcSumOfBoxCoordinates(lc.map2);
 
+        Pos oldRobotPos = lc.robot2Pos;
+        for (int i = 0; i < lc.robotRules.size(); i++) {
+            lc.robot2Pos = moveCharOnMap2(lc.map2, lc.robot2Pos, lc.robotRules.get(i));
+
+            if (false) {
+                System.out.printf("Move %d (%c)\n", i, dirchars[lc.robotRules.get(i)]);
+                dumpMap(lc.map2, oldRobotPos);
+                if (i < lc.robotRules.size() - 1) {
+                    System.out.printf("%c\n", dirchars[lc.robotRules.get(i + 1)]);
+                }
+            }
+            if (i > 174) {
+//                System.out.println();
+            }
+            if (false) {
+                saveMapImage(lc.map2, i + 1, bi, g2d, tilesize2);
+                System.out.printf("image %d,", i + 1);
+                if (i % 50 == 0) {
+                    System.out.println();
+                }
+            }
+            oldRobotPos.clone(lc.robot2Pos);
+        }
+        System.out.printf("Final Map 1 (%d Moves):\n", lc.robotRules.size());
+        dumpMap(lc.map2, null);
+        long sumOfCoordinates2 = calcSumOfBoxCoordinates(lc.map2);
 
         System.out.println("----------------------------------");
         System.out.printf("Part 1 sum of coordinates: %d\n", sumOfCoordinates);
         System.out.printf("Part 2 sum of coordinates: %d\n", sumOfCoordinates2);
+    }
+
+    void saveMapImage(char[][] map, int id, BufferedImage bi, Graphics2D g2d, Pos tilesize) {
+
+        g2d.clearRect(0, 0, bi.getWidth(), bi.getHeight());
+
+        for (int y = 0; y < map.length; y++) {
+            for (int x = 0; x < map[y].length; x++) {
+                g2d.setColor(tileColors.get(map[y][x]));
+//                g2d.fillRect(x * tilesize.x, y * tilesize.y, tilesize.x, tilesize.y);
+                var tile = String.valueOf(map[y][x]);
+                if (tile.equals("@")) {
+                    tile = "$";
+                }
+                g2d.drawString(tile, x * tilesize.x, y * tilesize.y + tilesize.y);
+            }
+        }
+        try {
+            ImageIO.write(bi, "PNG", new File(String.format("_tmp/image-%06d.png", id)));
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     long calcSumOfBoxCoordinates(char[][] map) {
@@ -173,9 +250,83 @@ public class AOC2024_15 extends Application {
         return freepos.plus(dirs[direction]);
     }
 
-    private void dumpMap(char[][] map) {
+    private Pos moveCharOnMap2(char[][] map, Pos charpos, int direction) {
+        // 1. find all Boxes in direction
+        List<Pos> boxes;
+        try {
+            boxes = findBoxParts(map, charpos, direction);
+            boxes = boxes.stream().distinct().collect(Collectors.toList());
+            if (direction == TOP) {
+                boxes.sort((a, b) -> Integer.compare(a.y, b.y));
+            } else if (direction == BOTTOM) {
+                boxes.sort((a, b) -> Integer.compare(b.y, a.y));
+            } else if (direction == LEFT) {
+                boxes.sort((a, b) -> Integer.compare(a.x, b.x));
+            } else {
+                boxes.sort((a, b) -> Integer.compare(b.x, a.x));
+            }
+
+            for (int i = 0; i < boxes.size(); i++) {
+                var oldpos = boxes.get(i);
+                var newpos = oldpos.plus(dirs[direction]);
+                map[newpos.y][newpos.x] = map[oldpos.y][oldpos.x];
+                map[oldpos.y][oldpos.x] = FLOOR;
+            }
+            var newCharPos = charpos.plus(dirs[direction]);
+            map[newCharPos.y][newCharPos.x] = map[charpos.y][charpos.x];
+            map[charpos.y][charpos.x] = FLOOR;
+
+            return newCharPos;
+
+        } catch (WandException exception) {
+            // Mauer im Weg!
+//            System.out.println(exception.getMessage());
+            return charpos;
+        }
+    }
+
+    private List<Pos> findBoxParts(char[][] map, Pos pos, int direction) throws WandException {
+        var ret = new ArrayList<Pos>();
+        var testpos = pos.plus(dirs[direction]);
+        if (map[testpos.y][testpos.x] == BOX2L || map[testpos.y][testpos.x] == BOX2R) {
+            if (map[testpos.y][testpos.x] == BOX2L) {
+                ret.add(testpos);
+                ret.add(testpos.plus(dirs[RIGHT]));
+                if (direction == RIGHT) {
+                    ret.addAll(findBoxParts(map, testpos.plus(dirs[RIGHT]), direction));
+                } else {
+                    ret.addAll(findBoxParts(map, testpos, direction));
+                    if (direction != LEFT) {
+                        ret.addAll(findBoxParts(map, testpos.plus(dirs[RIGHT]), direction));
+                    }
+                }
+            } else {
+                ret.add(testpos);
+                ret.add(testpos.plus(dirs[LEFT]));
+                if (direction == LEFT) {
+                    ret.addAll(findBoxParts(map, testpos.plus(dirs[LEFT]), direction));
+                } else {
+                    ret.addAll(findBoxParts(map, testpos, direction));
+                    if (direction != RIGHT) {
+                        ret.addAll(findBoxParts(map, testpos.plus(dirs[LEFT]), direction));
+                    }
+                }
+            }
+        } else if (map[testpos.y][testpos.x] == WALL) {
+            throw new WandException("Wand bei  " + pos.y + "/" + pos.x + " -> " + testpos.y + "/" + testpos.x + "!");
+        }
+
+        return ret;
+    }
+
+    private void dumpMap(char[][] map, Pos oldRobotPos) {
         for (int y = 0; y < map.length; y++) {
             for (int x = 0; x < map[y].length; x++) {
+
+                if (oldRobotPos != null && oldRobotPos.x == x && oldRobotPos.y == y) {
+                    printChar(ROBOT, ANSI_PURPLE);
+                    continue;
+                }
 
                 printChar(map[y][x],
                         switch (map[y][x]) {
