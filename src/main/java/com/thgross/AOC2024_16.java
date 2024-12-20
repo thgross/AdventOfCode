@@ -101,7 +101,7 @@ public class AOC2024_16 extends Application {
         // TODO 1. Breitensuche statt Tiefensuche?
         // TODO 2. Breitensuche statt Tiefensuche?
 //        calcLowestScore(lc.map, lc.reindeerPos, RIGHT, results);
-        var result = findOptimalPath(lc.map, lc.reindeerPos.x, lc.reindeerPos.y, RIGHT, lc.endPos.x, lc.endPos.y);
+        var result = findOptimalPath(lc.map, lc.reindeerPos.y, lc.reindeerPos.x, RIGHT, lc.endPos.y, lc.endPos.x);
         var paths = (List<List<int[]>>) result.get("paths");
         var pathCount = paths.size();
         for (List<int[]> path : paths) {
@@ -188,13 +188,13 @@ public class AOC2024_16 extends Application {
     }
 
     // Methode zur Berechnung des optimalen Pfades
-    public Map<String, Object> findOptimalPath(char[][] maze, int startX, int startY, int startDir, int endX, int endY) {
+    public Map<String, Object> findOptimalPath(char[][] maze, int startY, int startX, int startDir, int endY, int endX) {
         int rows = maze.length;
         int cols = maze[0].length;
 
-        // Warteschlange für die Breitensuche mit {x, y, Kosten, Richtung}
+        // Warteschlange für die Breitensuche mit {y, x, Kosten, Richtung, VorgängerY, VorgängerX}
         PriorityQueue<int[]> queue = new PriorityQueue<>(Comparator.comparingInt(a -> a[2]));
-        queue.add(new int[]{startY, startX, 0, startDir, -1, -1}); // Startpunkt mit Kosten 0 und Richtung RECHTS
+        queue.add(new int[]{startY, startX, 0, startDir, -1, -1}); // Startpunkt mit Kosten 0 und vorgegebener Richtung
 
         // Kostenmatrix initialisieren
         int[][] cost = new int[rows][cols];
@@ -249,7 +249,7 @@ public class AOC2024_16 extends Application {
                 // Überprüfen, ob die neuen Koordinaten begehbar sind
                 if (maze[newY][newX] == FLOOR) {
                     // Wenn der neue Pfad günstiger ist, aktualisieren und zur Warteschlange hinzufügen
-                    if (newCost < cost[newY][newX]) {
+                    if (newCost <= cost[newY][newX]) {
                         cost[newY][newX] = newCost;
                         queue.add(new int[]{newY, newX, newCost, dir, y, x});
                     }
