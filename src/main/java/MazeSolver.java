@@ -47,7 +47,7 @@ public class MazeSolver {
                 int minimalCost = currentCost;
                 List<List<int[]>> allPaths = new ArrayList<>();
 
-                reconstructPaths(predecessors, endX, endY, new ArrayList<>(), allPaths);
+                reconstructPaths(predecessors, endX, endY, new LinkedList<>(), allPaths);
 
                 Map<String, Object> result = new HashMap<>();
                 result.put("cost", minimalCost);
@@ -83,21 +83,21 @@ public class MazeSolver {
         return Collections.emptyMap();
     }
 
-    private static void reconstructPaths(Map<String, List<int[]>> predecessors, int x, int y, List<int[]> currentPath, List<List<int[]>> allPaths) {
-        currentPath.add(new int[]{x, y});
+    private static void reconstructPaths(Map<String, List<int[]>> predecessors, int x, int y, LinkedList<int[]> currentPath, List<List<int[]>> allPaths) {
+        currentPath.addFirst(new int[]{x, y});
 
         String key = x + "," + y;
         if (!predecessors.containsKey(key) || predecessors.get(key).isEmpty()) {
-            List<int[]> path = new ArrayList<>(currentPath);
-            Collections.reverse(path);
-            allPaths.add(path);
+            allPaths.add(new ArrayList<>(currentPath));
+            currentPath.removeFirst();
             return;
         }
 
         for (int[] pred : predecessors.get(key)) {
-            List<int[]> newPath = new ArrayList<>(currentPath);
-            reconstructPaths(predecessors, pred[0], pred[1], newPath, allPaths);
+            reconstructPaths(predecessors, pred[0], pred[1], currentPath, allPaths);
         }
+
+        currentPath.removeFirst();
     }
 
     public static void main(String[] args) {
@@ -121,9 +121,7 @@ public class MazeSolver {
             System.out.println("Minimaler Pfadpreis: " + result.get("cost"));
             System.out.println("Alle minimalen Pfade:");
             List<List<int[]>> paths = (List<List<int[]>>) result.get("paths");
-            int pnr = 0;
             for (List<int[]> path : paths) {
-                System.out.printf("pnr: %4d: ", pnr++);
                 for (int[] step : path) {
                     System.out.print(Arrays.toString(step) + " -> ");
                 }
