@@ -42,19 +42,6 @@ public class MazeSolver {
                 }
             }
 
-            // Wenn das Ziel erreicht ist
-            if (x == endX && y == endY) {
-                int minimalCost = currentCost;
-                List<List<int[]>> allPaths = new ArrayList<>();
-
-                reconstructPaths(predecessors, endX, endY, new LinkedList<>(), allPaths, new HashSet<>());
-
-                Map<String, Object> result = new HashMap<>();
-                result.put("cost", minimalCost);
-                result.put("paths", allPaths);
-                return result;
-            }
-
             // Über alle Bewegungsrichtungen iterieren
             for (int dir = 0; dir < DIRECTIONS.length; dir++) {
                 int newX = x + DIRECTIONS[dir][0];
@@ -79,8 +66,19 @@ public class MazeSolver {
             }
         }
 
-        // Kein Weg gefunden
-        return Collections.emptyMap();
+        // Minimalen Pfadpreis finden und Pfade rekonstruieren
+        int minimalCost = cost[endX][endY];
+        if (minimalCost == Integer.MAX_VALUE) {
+            return Collections.emptyMap(); // Kein Weg gefunden
+        }
+
+        List<List<int[]>> allPaths = new ArrayList<>();
+        reconstructPaths(predecessors, endX, endY, new LinkedList<>(), allPaths, new HashSet<>());
+
+        Map<String, Object> result = new HashMap<>();
+        result.put("cost", minimalCost);
+        result.put("paths", allPaths);
+        return result;
     }
 
     private static void reconstructPaths(Map<String, List<int[]>> predecessors, int x, int y, LinkedList<int[]> currentPath, List<List<int[]>> allPaths, Set<String> visitedPaths) {
@@ -88,11 +86,7 @@ public class MazeSolver {
 
         String key = x + "," + y;
         if (!predecessors.containsKey(key) || predecessors.get(key).isEmpty()) {
-            String pathKey = pathToString(currentPath);
-            if (!visitedPaths.contains(pathKey)) {
-                allPaths.add(new ArrayList<>(currentPath));
-                visitedPaths.add(pathKey);
-            }
+            allPaths.add(new ArrayList<>(currentPath));
             currentPath.removeFirst();
             return;
         }
@@ -104,14 +98,6 @@ public class MazeSolver {
         currentPath.removeFirst();
     }
 
-    private static String pathToString(LinkedList<int[]> path) {
-        StringBuilder sb = new StringBuilder();
-        for (int[] step : path) {
-            sb.append(Arrays.toString(step)).append("->");
-        }
-        return sb.toString();
-    }
-
     public static void main(String[] args) {
         // Beispielirrgarten (0 = begehbar, 1 = Wand)
         int[][] maze = {
@@ -119,7 +105,6 @@ public class MazeSolver {
                 {1, 0, 1, 0, 1},
                 {1, 0, 0, 0, 0}
         };
-
         int startX = 0, startY = 0;
         int startDir = 1; // Beispiel: Startet in Richtung "rechts"
         int endX = 2, endY = 4;
