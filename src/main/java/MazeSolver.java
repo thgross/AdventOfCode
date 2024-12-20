@@ -20,7 +20,7 @@ public class MazeSolver {
         cost[startX][startY] = 0;
 
         // Vorgänger-Matrix für mehrere Pfade
-        Map<String, List<int[]>> predecessors = new HashMap<>();
+        Map<String, Set<int[]>> predecessors = new HashMap<>();
 
         while (!queue.isEmpty()) {
             int[] current = queue.poll();
@@ -33,7 +33,7 @@ public class MazeSolver {
 
             String key = x + "," + y;
             if (!predecessors.containsKey(key)) {
-                predecessors.put(key, new ArrayList<>());
+                predecessors.put(key, new HashSet<>());
             }
 
             if (prevX != -1 && prevY != -1) {
@@ -71,7 +71,7 @@ public class MazeSolver {
                     if (newCost < cost[newX][newY]) {
                         cost[newX][newY] = newCost;
                         queue.add(new int[]{newX, newY, newCost, dir, x, y});
-                        predecessors.put(newX + "," + newY, new ArrayList<>(List.of(new int[]{x, y}))); // Initialisiert neue Vorgänger
+                        predecessors.put(newX + "," + newY, new HashSet<>(Set.of(new int[]{x, y}))); // Initialisiert neue Vorgänger
                     } else if (newCost == cost[newX][newY]) {
                         predecessors.get(newX + "," + newY).add(new int[]{x, y}); // Fügt zusätzlichen Vorgänger hinzu
                     }
@@ -83,7 +83,7 @@ public class MazeSolver {
         return Collections.emptyMap();
     }
 
-    private static void reconstructPaths(Map<String, List<int[]>> predecessors, int x, int y, LinkedList<int[]> currentPath, List<List<int[]>> allPaths) {
+    private static void reconstructPaths(Map<String, Set<int[]>> predecessors, int x, int y, LinkedList<int[]> currentPath, List<List<int[]>> allPaths) {
         currentPath.addFirst(new int[]{x, y});
 
         String key = x + "," + y;
@@ -94,7 +94,7 @@ public class MazeSolver {
         }
 
         for (int[] pred : predecessors.get(key)) {
-            reconstructPaths(predecessors, pred[0], pred[1], currentPath, allPaths);
+            reconstructPaths(predecessors, pred[0], pred[1], new LinkedList<>(currentPath), allPaths);
         }
 
         currentPath.removeFirst();
