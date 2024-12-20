@@ -20,7 +20,7 @@ public class MazeSolver {
         cost[startX][startY] = 0;
 
         // Vorgänger-Matrix für mehrere Pfade
-        Map<String, Set<int[]>> predecessors = new HashMap<>();
+        Map<String, List<int[]>> predecessors = new HashMap<>();
 
         while (!queue.isEmpty()) {
             int[] current = queue.poll();
@@ -33,7 +33,7 @@ public class MazeSolver {
 
             String key = x + "," + y;
             if (!predecessors.containsKey(key)) {
-                predecessors.put(key, new HashSet<>());
+                predecessors.put(key, new ArrayList<>());
             }
 
             if (prevX != -1 && prevY != -1) {
@@ -47,7 +47,7 @@ public class MazeSolver {
                 int minimalCost = currentCost;
                 List<List<int[]>> allPaths = new ArrayList<>();
 
-                reconstructPaths(predecessors, endX, endY, new LinkedList<>(), allPaths);
+                reconstructPaths(predecessors, endX, endY, new LinkedList<>(), allPaths, new HashSet<>());
 
                 Map<String, Object> result = new HashMap<>();
                 result.put("cost", minimalCost);
@@ -71,7 +71,7 @@ public class MazeSolver {
                     if (newCost < cost[newX][newY]) {
                         cost[newX][newY] = newCost;
                         queue.add(new int[]{newX, newY, newCost, dir, x, y});
-                        predecessors.put(newX + "," + newY, new HashSet<>(Set.of(new int[]{x, y}))); // Initialisiert neue Vorgänger
+                        predecessors.put(newX + "," + newY, new ArrayList<>(List.of(new int[]{x, y}))); // Initialisiert neue Vorgänger
                     } else if (newCost == cost[newX][newY]) {
                         predecessors.get(newX + "," + newY).add(new int[]{x, y}); // Fügt zusätzlichen Vorgänger hinzu
                     }
@@ -83,36 +83,46 @@ public class MazeSolver {
         return Collections.emptyMap();
     }
 
-    private static void reconstructPaths(Map<String, Set<int[]>> predecessors, int x, int y, LinkedList<int[]> currentPath, List<List<int[]>> allPaths) {
+    private static void reconstructPaths(Map<String, List<int[]>> predecessors, int x, int y, LinkedList<int[]> currentPath, List<List<int[]>> allPaths, Set<String> visitedPaths) {
         currentPath.addFirst(new int[]{x, y});
 
         String key = x + "," + y;
         if (!predecessors.containsKey(key) || predecessors.get(key).isEmpty()) {
-            allPaths.add(new ArrayList<>(currentPath));
+            String pathKey = pathToString(currentPath);
+            if (!visitedPaths.contains(pathKey)) {
+                allPaths.add(new ArrayList<>(currentPath));
+                visitedPaths.add(pathKey);
+            }
             currentPath.removeFirst();
             return;
         }
 
         for (int[] pred : predecessors.get(key)) {
-            reconstructPaths(predecessors, pred[0], pred[1], new LinkedList<>(currentPath), allPaths);
+            reconstructPaths(predecessors, pred[0], pred[1], currentPath, allPaths, visitedPaths);
         }
 
         currentPath.removeFirst();
     }
 
+    private static String pathToString(LinkedList<int[]> path) {
+        StringBuilder sb = new StringBuilder();
+        for (int[] step : path) {
+            sb.append(Arrays.toString(step)).append("->");
+        }
+        return sb.toString();
+    }
+
     public static void main(String[] args) {
         // Beispielirrgarten (0 = begehbar, 1 = Wand)
         int[][] maze = {
-                {0, 0, 0, 1, 0},
-                {1, 1, 0, 1, 0},
-                {0, 0, 0, 0, 0},
-                {0, 1, 1, 1, 0},
-                {0, 0, 0, 0, 0}
+                {0, 0, 0, 0, 1},
+                {1, 0, 1, 0, 1},
+                {1, 0, 0, 0, 0}
         };
 
         int startX = 0, startY = 0;
         int startDir = 1; // Beispiel: Startet in Richtung "rechts"
-        int endX = 4, endY = 4;
+        int endX = 2, endY = 4;
 
         Map<String, Object> result = findOptimalPathsWithCost(maze, startX, startY, startDir, endX, endY);
         if (result.isEmpty()) {
