@@ -95,7 +95,8 @@ public class MazeSolver {
         }
 
         for (int[] pred : predecessors.get(key)) {
-            reconstructPaths(predecessors, pred[0], pred[1], new ArrayList<>(currentPath), allPaths);
+            List<int[]> newPath = new ArrayList<>(currentPath);
+            reconstructPaths(predecessors, pred[0], pred[1], newPath, allPaths);
         }
     }
 
@@ -120,9 +121,9 @@ public class MazeSolver {
             System.out.println("Minimaler Pfadpreis: " + result.get("cost"));
             System.out.println("Alle minimalen Pfade:");
             List<List<int[]>> paths = (List<List<int[]>>) result.get("paths");
-            var pnr = 0;
+            int pnr = 0;
             for (List<int[]> path : paths) {
-                System.out.printf("pnr %4d: ", pnr++);
+                System.out.printf("pnr: %4d: ", pnr++);
                 for (int[] step : path) {
                     System.out.print(Arrays.toString(step) + " -> ");
                 }
