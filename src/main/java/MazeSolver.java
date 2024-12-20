@@ -71,9 +71,9 @@ public class MazeSolver {
                     if (newCost < cost[newX][newY]) {
                         cost[newX][newY] = newCost;
                         queue.add(new int[]{newX, newY, newCost, dir, x, y});
-                        predecessors.put(newX + "," + newY, new ArrayList<>(List.of(new int[]{x, y})));
+                        predecessors.put(newX + "," + newY, new ArrayList<>(List.of(new int[]{x, y}))); // Initialisiert neue Vorgänger
                     } else if (newCost == cost[newX][newY]) {
-                        predecessors.get(newX + "," + newY).add(new int[]{x, y});
+                        predecessors.get(newX + "," + newY).add(new int[]{x, y}); // Fügt zusätzlichen Vorgänger hinzu
                     }
                 }
             }
@@ -108,30 +108,10 @@ public class MazeSolver {
                 {0, 1, 1, 1, 0},
                 {0, 0, 0, 0, 0}
         };
+
         int startX = 0, startY = 0;
         int startDir = 1; // Beispiel: Startet in Richtung "rechts"
         int endX = 4, endY = 4;
-
-//        int[][] maze = {
-//                {1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1},
-//                {1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 1},
-//                {1, 0, 1, 0, 1, 1, 1, 0, 1, 0, 1, 1, 1, 0, 1},
-//                {1, 0, 0, 0, 0, 0, 1, 0, 1, 0, 0, 0, 1, 0, 1},
-//                {1, 0, 1, 1, 1, 0, 1, 1, 1, 1, 1, 0, 1, 0, 1},
-//                {1, 0, 1, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 1},
-//                {1, 0, 1, 0, 1, 1, 1, 1, 1, 0, 1, 1, 1, 0, 1},
-//                {1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 1},
-//                {1, 1, 1, 0, 1, 0, 1, 1, 1, 1, 1, 0, 1, 0, 1},
-//                {1, 0, 0, 0, 1, 0, 0, 0, 0, 0, 1, 0, 1, 0, 1},
-//                {1, 0, 1, 0, 1, 0, 1, 1, 1, 0, 1, 0, 1, 0, 1},
-//                {1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1, 0, 1},
-//                {1, 0, 1, 1, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1},
-//                {1, 0, 0, 0, 1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 1},
-//                {1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1}
-//        };
-//        int startX = 1, startY =13;
-//        int startDir = 1; // Beispiel: Startet in Richtung "rechts"
-//        int endX = 13, endY = 1;
 
         Map<String, Object> result = findOptimalPathsWithCost(maze, startX, startY, startDir, endX, endY);
         if (result.isEmpty()) {
@@ -140,7 +120,9 @@ public class MazeSolver {
             System.out.println("Minimaler Pfadpreis: " + result.get("cost"));
             System.out.println("Alle minimalen Pfade:");
             List<List<int[]>> paths = (List<List<int[]>>) result.get("paths");
+            var pnr = 0;
             for (List<int[]> path : paths) {
+                System.out.printf("pnr %4d: ", pnr++);
                 for (int[] step : path) {
                     System.out.print(Arrays.toString(step) + " -> ");
                 }
