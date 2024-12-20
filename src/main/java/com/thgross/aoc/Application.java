@@ -1,8 +1,5 @@
 package com.thgross.aoc;
 
-import com.sun.jdi.event.EventQueue;
-import com.thgross.AOC2024_12;
-
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
@@ -21,32 +18,42 @@ public abstract class Application {
     Instant stop;
     protected String inputFilename;
 
-    protected final String ANSI_RESET = "\u001B[0m";
-    protected final String ANSI_BLACK = "\u001B[30m";
-    protected final String ANSI_RED = "\u001B[31m";
-    protected final String ANSI_GREEN = "\u001B[32m";
-    protected final String ANSI_YELLOW = "\u001B[33m";
-    protected final String ANSI_BLUE = "\u001B[34m";
-    protected final String ANSI_PURPLE = "\u001B[35m";
-    protected final String ANSI_CYAN = "\u001B[36m";
-    protected final String ANSI_WHITE = "\u001B[37m";
+    // https://stackoverflow.com/a/45444716/4576064
 
-    protected final String ANSI_BLACK_BACKGROUND = "\u001B[40m";
-    protected final String ANSI_RED_BACKGROUND = "\u001B[41m";
-    protected final String ANSI_GREEN_BACKGROUND = "\u001B[42m";
-    protected final String ANSI_YELLOW_BACKGROUND = "\u001B[43m";
-    protected final String ANSI_BLUE_BACKGROUND = "\u001B[44m";
-    protected final String ANSI_PURPLE_BACKGROUND = "\u001B[45m";
-    protected final String ANSI_CYAN_BACKGROUND = "\u001B[46m";
-    protected final String ANSI_WHITE_BACKGROUND = "\u001B[47m";
-    protected final String BLACK_BACKGROUND_BRIGHT = "\033[0;100m";// BLACK
-    protected final String RED_BACKGROUND_BRIGHT = "\033[0;101m";// RED
-    protected final String GREEN_BACKGROUND_BRIGHT = "\033[0;102m";// GREEN
-    protected final String YELLOW_BACKGROUND_BRIGHT = "\033[0;103m";// YELLOW
-    protected final String BLUE_BACKGROUND_BRIGHT = "\033[0;104m";// BLUE
-    protected final String PURPLE_BACKGROUND_BRIGHT = "\033[0;105m"; // PURPLE
-    protected final String CYAN_BACKGROUND_BRIGHT = "\033[0;106m";  // CYAN
-    protected final String WHITE_BACKGROUND_BRIGHT = "\033[0;107m";   // WHITE
+    protected final String RESET = "\u001B[0m";
+    protected final String BLACK = "\u001B[30m";
+    protected final String RED = "\u001B[31m";
+    protected final String GREEN = "\u001B[32m";
+    protected final String YELLOW = "\u001B[33m";
+    protected final String BLUE = "\u001B[34m";
+    protected final String PURPLE = "\u001B[35m";
+    protected final String CYAN = "\u001B[36m";
+    protected final String WHITE = "\u001B[37m";
+    protected final String BLACK_BRIGHT = "\033[0;90m";
+    protected final String RED_BRIGHT = "\033[0;91m";
+    protected final String GREEN_BRIGHT = "\033[0;92m";
+    protected final String YELLOW_BRIGHT = "\033[0;93m";
+    protected final String BLUE_BRIGHT = "\033[0;94m";
+    protected final String PURPLE_BRIGHT = "\033[0;95m";
+    protected final String CYAN_BRIGHT = "\033[0;96m";
+    protected final String WHITE_BRIGHT = "\033[0;97m";
+
+    protected final String BG_BLACK = "\u001B[40m";
+    protected final String BG_RED = "\u001B[41m";
+    protected final String BG_GREEN = "\u001B[42m";
+    protected final String BG_YELLOW = "\u001B[43m";
+    protected final String BG_BLUE = "\u001B[44m";
+    protected final String BG_PURPLE = "\u001B[45m";
+    protected final String BG_CYAN = "\u001B[46m";
+    protected final String BG_WHITE = "\u001B[47m";
+    protected final String BG_BLACK_BRIGHT = "\033[0;100m";// BLACK
+    protected final String BG_RED_BRIGHT = "\033[0;101m";// RED
+    protected final String BG_GREEN_BRIGHT = "\033[0;102m";// GREEN
+    protected final String BG_YELLOW_BRIGHT = "\033[0;103m";// YELLOW
+    protected final String BG_BLUE_BRIGHT = "\033[0;104m";// BLUE
+    protected final String BG_PURPLE_BRIGHT = "\033[0;105m"; // PURPLE
+    protected final String BG_CYAN_BRIGHT = "\033[0;106m";  // CYAN
+    protected final String BG_WHITE_BRIGHT = "\033[0;107m";   // WHITE
 
     protected static class Pos implements Comparable<Pos> {
         public int y, x;
@@ -66,6 +73,10 @@ public abstract class Application {
 
         public Pos plus(Pos addPos) {
             return new Pos(y + addPos.y, x + addPos.x);
+        }
+
+        public Pos plus(int y, int x) {
+            return new Pos(this.y + y, this.x + x);
         }
 
         public void sub(Pos subPos) {
@@ -200,7 +211,7 @@ public abstract class Application {
     protected void printChar(char ch, String color) {
         System.out.print(color);
         printChar(ch);
-        System.out.print(ANSI_RESET);
+        System.out.print(RESET);
     }
 
     protected void printChar(char ch, String color, String bgcolor) {

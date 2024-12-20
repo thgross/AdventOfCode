@@ -324,27 +324,27 @@ public class AOC2024_15 extends Application {
             for (int x = 0; x < map[y].length; x++) {
 
                 if (oldRobotPos != null && oldRobotPos.x == x && oldRobotPos.y == y) {
-                    printChar(ROBOT, ANSI_PURPLE);
+                    printChar(ROBOT, PURPLE);
                     continue;
                 }
 
                 printChar(map[y][x],
                         switch (map[y][x]) {
-                            case WALL -> ANSI_GREEN;
-                            case FLOOR -> ANSI_BLUE;
-                            case BOX -> ANSI_YELLOW;
-                            case BOX2L -> ANSI_YELLOW;
-                            case BOX2R -> ANSI_YELLOW;
-                            case ROBOT -> ANSI_RED;
+                            case WALL -> GREEN;
+                            case FLOOR -> BLUE;
+                            case BOX -> YELLOW;
+                            case BOX2L -> YELLOW;
+                            case BOX2R -> YELLOW;
+                            case ROBOT -> RED;
                             default -> throw new RuntimeException("unknown map tile " + map[y][x]);
                         },
                         switch (map[y][x]) {
-                            case WALL -> ANSI_BLACK_BACKGROUND;
-                            case FLOOR -> ANSI_BLACK_BACKGROUND;
-                            case BOX -> ANSI_BLACK_BACKGROUND;
-                            case BOX2L -> ANSI_BLACK_BACKGROUND;
-                            case BOX2R -> ANSI_BLACK_BACKGROUND;
-                            case ROBOT -> ANSI_BLACK_BACKGROUND;
+                            case WALL -> BG_BLACK;
+                            case FLOOR -> BG_BLACK;
+                            case BOX -> BG_BLACK;
+                            case BOX2L -> BG_BLACK;
+                            case BOX2R -> BG_BLACK;
+                            case ROBOT -> BG_BLACK;
                             default -> throw new RuntimeException("unknown map tile " + map[y][x]);
                         });
             }
