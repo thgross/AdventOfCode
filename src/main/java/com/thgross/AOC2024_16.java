@@ -9,7 +9,7 @@ import java.util.List;
 
 public class AOC2024_16 extends Application {
     public static void main(String[] args) {
-        var inputfile = "input16-t-tgtest1.txt";
+        var inputfile = "input16.txt";
         var app = (new AOC2024_16());
         app.run(inputfile);
     }
@@ -106,11 +106,12 @@ public class AOC2024_16 extends Application {
         // TODO 1. Breitensuche statt Tiefensuche?
         // TODO 2. Breitensuche statt Tiefensuche?
 //        calcLowestScore(lc.map, lc.reindeerPos, RIGHT, results);
-        var result = findOptimalPath(lc.map, lc.reindeerPos.y, lc.reindeerPos.x, RIGHT, lc.endPos.y, lc.endPos.x);
+        var result = findAllOptimalPathsWithCost(lc.map, lc.reindeerPos.y, lc.reindeerPos.x, RIGHT, lc.endPos.y, lc.endPos.x);
         var paths = (List<List<int[]>>) result.get("paths");
         var pathCount = paths.size();
+        int pathTiles = 0;
         for (List<int[]> path : paths) {
-            drawPathToMap(lc.map, path);
+            pathTiles += drawPathToMap(lc.map, path);
         }
         results.minScore = (int) result.get("cost");
 
@@ -119,6 +120,7 @@ public class AOC2024_16 extends Application {
 
         System.out.println("----------------------------------");
         System.out.printf("Part 1 lowest score: %d (%d Paths)\n", results.minScore, pathCount);
+        System.out.printf("Part 2 Pathtiles: %d\n", pathTiles);
     }
 
     protected void calcLowestScore(char[][] map, Pos pos, int dir, Results results) {
@@ -169,7 +171,11 @@ public class AOC2024_16 extends Application {
         }
     }
 
-    public void drawPathToMap(char[][] map, List<int[]> path) {
+    /* Returns Number of new changed Tiles
+     */
+    public int drawPathToMap(char[][] map, List<int[]> path) {
+
+        int changedTiles = 0;
 
         char chr = CUP;
         for (int i = 0; i < path.size(); i++) {
@@ -188,91 +194,67 @@ public class AOC2024_16 extends Application {
             } else {
 
             }
+
+            if(map[current[0]][current[1]] == FLOOR) {
+                changedTiles++;
+            }
+
             map[current[0]][current[1]] = chr;
         }
+
+        return changedTiles;
     }
 
-    protected static class QuEl {
-        int y, x;
-        int cost;
-        int dir;
-        int prevY, prevX;
+    // Bewegungsrichtungen: oben, rechts, unten, links
+    private static final int[][] DIRECTIONS = {{-1, 0}, {0, 1}, {1, 0}, {0, -1}};
 
-        public QuEl(int y, int x, int cost, int dir, int prevY, int prevX) {
-            this.y = y;
-            this.x = x;
-            this.cost = cost;
-            this.dir = dir;
-            this.prevY = prevY;
-            this.prevX = prevX;
-        }
-    }
-
-    // Methode zur Berechnung des optimalen Pfades
-    public Map<String, Object> findOptimalPath(char[][] maze, int startY, int startX, int startDir, int endY, int endX) {
+    /*
+     * Die cost-Matrix speichert den günstigsten Wert, um zu diesem Punkt zu kommen, egal, von wo man kommt. Das
+     * ist ein Problem, denn es kann sein, dass ein zweiter Weg an dieser Stelle zwar teurer ist, aber an Ende
+     * (d.h. im Ziel) genauso teuer wie der andere Weg.
+     * Lösung: die cost-Matrix muss die Richtung, aus der der Weg kommt, berücksichtigen. Nur, wenn ein Pfad aus
+     * der gleichen Richtung kommt und teurer ist, sollte er verworfen werden.
+     * Beim folgenden Maze ist der obere Pfad an der Stelle (y,x) = (3,4) günstiger als der untere. Allerdings
+     * sind die beim nächsten Schritt (y,x) = (3,5) wieer gleich teuer, denn der obere Pfad biegt ab (1000 Punkte),
+     * während der untere geradeaus geht.
+     * Die KIs kommen mit dieser Kostenstruktur scheinbar nicht zurecht. Sie finden zwar den grundsätzlich
+     * günstigsten Pfad, schaffen es aber nicht, alle möglichen günstigsten Pfade zu berechnen.
+     */
+    // Methode zur Berechnung der minimalen Kosten und aller optimalen Pfade
+    public static Map<String, Object> findAllOptimalPathsWithCost(char[][] maze, int startY, int startX, int startDir, int endY, int endX) {
         int rows = maze.length;
         int cols = maze[0].length;
 
-        // Warteschlange für die Breitensuche mit {y, x, Kosten, Richtung, VorgängerY, VorgängerX}
-        PriorityQueue<QuEl> queue = new PriorityQueue<>(Comparator.comparingInt(a -> a.cost));
-        queue.add(new QuEl(startY, startX, 0, startDir, -1, -1)); // Startpunkt mit Kosten 0 und vorgegebener Richtung
+        // Warteschlange für die Breitensuche mit {y, x, Kosten, Richtung}
+        PriorityQueue<int[]> queue = new PriorityQueue<>(Comparator.comparingInt(a -> a[2]));
+        queue.add(new int[]{startY, startX, 0, startDir}); // Startpunkt mit Kosten 0 und vorgegebener Richtung
 
-        // Kostenmatrix initialisieren
-        int[][] cost = new int[rows][cols];
-        for (int[] row : cost) Arrays.fill(row, Integer.MAX_VALUE);
-        cost[startY][startX] = 0;
+        // Kostenmatrix für jede Richtung initialisieren
+        int[][][] cost = new int[rows][cols][DIRECTIONS.length];
+        for (int[][] layer : cost) {
+            for (int[] row : layer) {
+                Arrays.fill(row, Integer.MAX_VALUE);
+            }
+        }
+        cost[startY][startX][startDir] = 0;
 
-        /* TODO:
-         *   Die cost-Matrix speichert den günstigsten Wert, um zu diesem Punkt zu kommen, egal, von wo man kommt. Das
-         *   ist ein Problem, denn es kann sein, dass ein zweiter Weg an dieser Stelle zwar teurer ist, aber an Ende
-         *   (d.h. im Ziel) genauso teuer wie der andere Weg.
-         *   Lösung: die cost-Matrix muss die Richtung, aus der der Weg kommt, berücksichtigen. Nur, wenn ein Pfad aus
-         *   der gleichen Richtung kommt und teurer ist, sollte er verworfen werden.
-         *   Beim folgenden Maze ist der obere Pfad an der Stelle (y,x) = (3,4) günstiger als der untere. Allerdings
-         *   sind die beim nächsten Schritt (y,x) = (3,5) wieer gleich teuer, denn der obere Pfad biegt ab (1000 Punkte),
-         *   während der untere geradeaus geht.
-         *   Die KIs kommen mit dieser Kostenstruktur scheinbar nicht zurecht. Sie finden zwar den grundsätzlich
-         *   günstigsten Pfad, schaffen es aber nicht, alle möglichen günstigsten Pfade zu berechnen.
-         */
-
-        // Vorgänger-Matrix für mehrere Pfade
-        Map<String, List<int[]>> predecessors = new HashMap<>();
+        // Map für alle Pfade mit minimalen Kosten
+        Map<String, List<List<int[]>>> allPaths = new HashMap<>();
+        String startKey = startY + "," + startX + "," + startDir;
+        allPaths.put(startKey, new ArrayList<>());
+        allPaths.get(startKey).add(new ArrayList<>(List.of(new int[]{startY, startX})));
 
         while (!queue.isEmpty()) {
-            QuEl current = queue.poll();
-            int y = current.y;
-            int x = current.x;
-            int currentCost = current.cost;
-            int currentDir = current.dir;
-            int prevY = current.prevY;
-            int prevX = current.prevX;
-
-            String key = y + "," + x;
-            if (!predecessors.containsKey(key)) {
-                predecessors.put(key, new ArrayList<>());
-            }
-
-            if (prevY != -1 && prevX != -1) {
-                predecessors.get(key).add(new int[]{prevY, prevX});
-            }
-
-            // Wenn das Ziel erreicht ist, den Pfadpreis zurückgeben
-            if (y == endY && x == endX) {
-                int minimalCost = currentCost;
-                List<List<int[]>> allPaths = new ArrayList<>();
-
-                reconstructPaths(predecessors, endY, endX, new ArrayList<>(), allPaths);
-
-                Map<String, Object> result = new HashMap<>();
-                result.put("cost", minimalCost);
-                result.put("paths", allPaths);
-                return result;
-            }
+            int[] current = queue.poll();
+            int y = current[0];
+            int x = current[1];
+            int currentCost = current[2];
+            int currentDir = current[3];
 
             // Über alle Bewegungsrichtungen iterieren
-            for (int dir = 0; dir < dirs.length; dir++) {
-                int newY = y + dirs[dir].y;
-                int newX = x + dirs[dir].x;
+            for (int dir = 0; dir < DIRECTIONS.length; dir++) {
+                int newY = y + DIRECTIONS[dir][0];
+                int newX = x + DIRECTIONS[dir][1];
                 int newCost = currentCost + 1; // Standardkostenschritt
 
                 // Kosten für Richtungswechsel hinzufügen, wenn nötig
@@ -280,35 +262,58 @@ public class AOC2024_16 extends Application {
                     newCost += 1000;
                 }
 
-                // Überprüfen, ob die neuen Koordinaten begehbar sind
-                if (maze[newY][newX] == FLOOR) {
-                    // Wenn der neue Pfad günstiger ist, aktualisieren und zur Warteschlange hinzufügen
-                    if (newCost <= cost[newY][newX]) {
-                        cost[newY][newX] = newCost;
-                        queue.add(new QuEl(newY, newX, newCost, dir, y, x));
+                // Überprüfen, ob die neuen Koordinaten im Labyrinth sind und begehbar sind
+                if (newY >= 0 && newY < rows && newX >= 0 && newX < cols && maze[newY][newX] == FLOOR) {
+                    if (newCost < cost[newY][newX][dir]) {
+                        cost[newY][newX][dir] = newCost;
+                        queue.add(new int[]{newY, newX, newCost, dir});
+
+                        // Pfade aktualisieren
+                        String key = newY + "," + newX + "," + dir;
+                        allPaths.put(key, new ArrayList<>());
+                        String parentKey = y + "," + x + "," + currentDir;
+                        for (List<int[]> path : allPaths.get(parentKey)) {
+                            List<int[]> newPath = new ArrayList<>(path);
+                            newPath.add(new int[]{newY, newX});
+                            allPaths.get(key).add(newPath);
+                        }
+                    } else if (newCost == cost[newY][newX][dir]) {
+                        // Wenn gleiche Kosten, Pfade hinzufügen
+                        String key = newY + "," + newX + "," + dir;
+                        String parentKey = y + "," + x + "," + currentDir;
+                        for (List<int[]> path : allPaths.get(parentKey)) {
+                            List<int[]> newPath = new ArrayList<>(path);
+                            newPath.add(new int[]{newY, newX});
+                            allPaths.get(key).add(newPath);
+                        }
                     }
                 }
             }
         }
 
-        // Kein Weg gefunden
-        return Collections.emptyMap();
-    }
-
-    private static void reconstructPaths(Map<String, List<int[]>> predecessors, int y, int x, List<int[]> currentPath, List<List<int[]>> allPaths) {
-        currentPath.add(new int[]{y, x});
-
-        String key = y + "," + x;
-        if (!predecessors.containsKey(key) || predecessors.get(key).isEmpty()) {
-            List<int[]> path = new ArrayList<>(currentPath);
-            Collections.reverse(path);
-            allPaths.add(path);
-            return;
+        // Minimalen Pfadpreis finden und alle Pfade rekonstruieren
+        int minCost = Integer.MAX_VALUE;
+        String endKey = null;
+        List<List<int[]>> resultPaths = new ArrayList<>();
+        for (int dir = 0; dir < DIRECTIONS.length; dir++) {
+            if (cost[endY][endX][dir] < minCost) {
+                minCost = cost[endY][endX][dir];
+                endKey = endY + "," + endX + "," + dir;
+                resultPaths = allPaths.getOrDefault(endKey, new ArrayList<>());
+            } else if (cost[endY][endX][dir] == minCost) {
+                endKey = endY + "," + endX + "," + dir;
+                resultPaths.addAll(allPaths.getOrDefault(endKey, new ArrayList<>()));
+            }
         }
 
-        for (int[] pred : predecessors.get(key)) {
-            reconstructPaths(predecessors, pred[0], pred[1], new ArrayList<>(currentPath), allPaths);
+        if (minCost == Integer.MAX_VALUE) {
+            return Collections.emptyMap(); // Kein Weg gefunden
         }
+
+        Map<String, Object> result = new HashMap<>();
+        result.put("cost", minCost);
+        result.put("paths", resultPaths);
+        return result;
     }
 
     private void dumpMap(char[][] map, Results results, boolean lowest) {
