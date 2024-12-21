@@ -5,8 +5,8 @@ public class MazeSolver {
     // Bewegungsrichtungen: oben, rechts, unten, links
     private static final int[][] DIRECTIONS = {{-1, 0}, {0, 1}, {1, 0}, {0, -1}};
 
-    // Methode zur Berechnung der minimalen Kosten und des optimalen Pfades
-    public static Map<String, Object> findOptimalPathWithCost(int[][] maze, int startY, int startX, int startDir, int endY, int endX) {
+    // Methode zur Berechnung der minimalen Kosten und aller optimalen Pfade
+    public static Map<String, Object> findAllOptimalPathsWithCost(int[][] maze, int startY, int startX, int startDir, int endY, int endX) {
         int rows = maze.length;
         int cols = maze[0].length;
 
@@ -14,20 +14,20 @@ public class MazeSolver {
         PriorityQueue<int[]> queue = new PriorityQueue<>(Comparator.comparingInt(a -> a[2]));
         queue.add(new int[]{startY, startX, 0, startDir}); // Startpunkt mit Kosten 0 und vorgegebener Richtung
 
-        // Kostenmatrix initialisieren
-        int[][] cost = new int[rows][cols];
-        for (int[] row : cost) {
-            Arrays.fill(row, Integer.MAX_VALUE);
-        }
-        cost[startY][startX] = 0;
-
-        // Vorgänger-Matrix für die Rekonstruktion des Pfades
-        int[][][] predecessors = new int[rows][cols][2];
-        for (int[][] row : predecessors) {
-            for (int[] cell : row) {
-                Arrays.fill(cell, -1);
+        // Kostenmatrix für jede Richtung initialisieren
+        int[][][] cost = new int[rows][cols][DIRECTIONS.length];
+        for (int[][] layer : cost) {
+            for (int[] row : layer) {
+                Arrays.fill(row, Integer.MAX_VALUE);
             }
         }
+        cost[startY][startX][startDir] = 0;
+
+        // Map für alle Pfade mit minimalen Kosten
+        Map<String, List<List<int[]>>> allPaths = new HashMap<>();
+        String startKey = startY + "," + startX + "," + startDir;
+        allPaths.put(startKey, new ArrayList<>());
+        allPaths.get(startKey).add(new ArrayList<>(List.of(new int[]{startY, startX})));
 
         while (!queue.isEmpty()) {
             int[] current = queue.poll();
@@ -48,31 +48,56 @@ public class MazeSolver {
                 }
 
                 // Überprüfen, ob die neuen Koordinaten im Labyrinth sind und begehbar sind
-                if (newY >= 0 && newY < rows && newX >= 0 && newX < cols && maze[newY][newX] == 0 && newCost < cost[newY][newX]) {
-                    cost[newY][newX] = newCost;
-                    queue.add(new int[]{newY, newX, newCost, dir});
-                    predecessors[newY][newX] = new int[]{y, x};
+                if (newY >= 0 && newY < rows && newX >= 0 && newX < cols && maze[newY][newX] == 0) {
+                    if (newCost < cost[newY][newX][dir]) {
+                        cost[newY][newX][dir] = newCost;
+                        queue.add(new int[]{newY, newX, newCost, dir});
+
+                        // Pfade aktualisieren
+                        String key = newY + "," + newX + "," + dir;
+                        allPaths.put(key, new ArrayList<>());
+                        String parentKey = y + "," + x + "," + currentDir;
+                        for (List<int[]> path : allPaths.get(parentKey)) {
+                            List<int[]> newPath = new ArrayList<>(path);
+                            newPath.add(new int[]{newY, newX});
+                            allPaths.get(key).add(newPath);
+                        }
+                    } else if (newCost == cost[newY][newX][dir]) {
+                        // Wenn gleiche Kosten, Pfade hinzufügen
+                        String key = newY + "," + newX + "," + dir;
+                        String parentKey = y + "," + x + "," + currentDir;
+                        for (List<int[]> path : allPaths.get(parentKey)) {
+                            List<int[]> newPath = new ArrayList<>(path);
+                            newPath.add(new int[]{newY, newX});
+                            allPaths.get(key).add(newPath);
+                        }
+                    }
                 }
             }
         }
 
-        // Minimalen Pfadpreis finden und Pfad rekonstruieren
-        if (cost[endY][endX] == Integer.MAX_VALUE) {
+        // Minimalen Pfadpreis finden und alle Pfade rekonstruieren
+        int minCost = Integer.MAX_VALUE;
+        String endKey = null;
+        List<List<int[]>> resultPaths = new ArrayList<>();
+        for (int dir = 0; dir < DIRECTIONS.length; dir++) {
+            if (cost[endY][endX][dir] < minCost) {
+                minCost = cost[endY][endX][dir];
+                endKey = endY + "," + endX + "," + dir;
+                resultPaths = allPaths.getOrDefault(endKey, new ArrayList<>());
+            } else if (cost[endY][endX][dir] == minCost) {
+                endKey = endY + "," + endX + "," + dir;
+                resultPaths.addAll(allPaths.getOrDefault(endKey, new ArrayList<>()));
+            }
+        }
+
+        if (minCost == Integer.MAX_VALUE) {
             return Collections.emptyMap(); // Kein Weg gefunden
         }
 
-        List<int[]> path = new ArrayList<>();
-        for (int y = endY, x = endX; y != -1 && x != -1; ) {
-            path.add(new int[]{y, x});
-            int[] prev = predecessors[y][x];
-            y = prev[0];
-            x = prev[1];
-        }
-        Collections.reverse(path);
-
         Map<String, Object> result = new HashMap<>();
-        result.put("cost", cost[endY][endX]);
-        result.put("path", path);
+        result.put("cost", minCost);
+        result.put("paths", resultPaths);
         return result;
     }
 
@@ -99,17 +124,19 @@ public class MazeSolver {
         int startDir = 1; // Beispiel: Startet in Richtung "rechts"
         int endY = 2, endX = 4;
 
-        Map<String, Object> result = findOptimalPathWithCost(maze, startY, startX, startDir, endY, endX);
+        Map<String, Object> result = findAllOptimalPathsWithCost(maze, startY, startX, startDir, endY, endX);
         if (result.isEmpty()) {
             System.out.println("Kein Weg gefunden.");
         } else {
             System.out.println("Minimaler Pfadpreis: " + result.get("cost"));
-            System.out.println("Optimaler Pfad:");
-            List<int[]> path = (List<int[]>) result.get("path");
-            for (int[] step : path) {
-                System.out.print(Arrays.toString(step) + " -> ");
+            System.out.println("Alle optimalen Pfade:");
+            List<List<int[]>> paths = (List<List<int[]>>) result.get("paths");
+            for (List<int[]> path : paths) {
+                for (int[] step : path) {
+                    System.out.print(Arrays.toString(step) + " -> ");
+                }
+                System.out.println("Ende");
             }
-            System.out.println("Ende");
         }
     }
 }
