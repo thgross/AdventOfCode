@@ -9,12 +9,12 @@ import java.util.List;
 
 public class AOC2024_16 extends Application {
     public static void main(String[] args) {
-        var inputfile = "input16.txt";
+        var inputfile = "input16-t-tgtest1.txt";
         var app = (new AOC2024_16());
         app.run(inputfile);
     }
 
-//    static final char WALL = '■';
+    //    static final char WALL = '■';
 //    static final char WALL = '#';
     static final char WALL = '▓';
     static final char FLOOR = '·';
@@ -192,31 +192,60 @@ public class AOC2024_16 extends Application {
         }
     }
 
+    protected static class QuEl {
+        int y, x;
+        int cost;
+        int dir;
+        int prevY, prevX;
+
+        public QuEl(int y, int x, int cost, int dir, int prevY, int prevX) {
+            this.y = y;
+            this.x = x;
+            this.cost = cost;
+            this.dir = dir;
+            this.prevY = prevY;
+            this.prevX = prevX;
+        }
+    }
+
     // Methode zur Berechnung des optimalen Pfades
     public Map<String, Object> findOptimalPath(char[][] maze, int startY, int startX, int startDir, int endY, int endX) {
         int rows = maze.length;
         int cols = maze[0].length;
 
         // Warteschlange für die Breitensuche mit {y, x, Kosten, Richtung, VorgängerY, VorgängerX}
-        PriorityQueue<int[]> queue = new PriorityQueue<>(Comparator.comparingInt(a -> a[2]));
-        queue.add(new int[]{startY, startX, 0, startDir, -1, -1}); // Startpunkt mit Kosten 0 und vorgegebener Richtung
+        PriorityQueue<QuEl> queue = new PriorityQueue<>(Comparator.comparingInt(a -> a.cost));
+        queue.add(new QuEl(startY, startX, 0, startDir, -1, -1)); // Startpunkt mit Kosten 0 und vorgegebener Richtung
 
         // Kostenmatrix initialisieren
         int[][] cost = new int[rows][cols];
         for (int[] row : cost) Arrays.fill(row, Integer.MAX_VALUE);
         cost[startY][startX] = 0;
 
+        /* TODO:
+         *   Die cost-Matrix speichert den günstigsten Wert, um zu diesem Punkt zu kommen, egal, von wo man kommt. Das
+         *   ist ein Problem, denn es kann sein, dass ein zweiter Weg an dieser Stelle zwar teurer ist, aber an Ende
+         *   (d.h. im Ziel) genauso teuer wie der andere Weg.
+         *   Lösung: die cost-Matrix muss die Richtung, aus der der Weg kommt, berücksichtigen. Nur, wenn ein Pfad aus
+         *   der gleichen Richtung kommt und teurer ist, sollte er verworfen werden.
+         *   Beim folgenden Maze ist der obere Pfad an der Stelle (y,x) = (3,4) günstiger als der untere. Allerdings
+         *   sind die beim nächsten Schritt (y,x) = (3,5) wieer gleich teuer, denn der obere Pfad biegt ab (1000 Punkte),
+         *   während der untere geradeaus geht.
+         *   Die KIs kommen mit dieser Kostenstruktur scheinbar nicht zurecht. Sie finden zwar den grundsätzlich
+         *   günstigsten Pfad, schaffen es aber nicht, alle möglichen günstigsten Pfade zu berechnen.
+         */
+
         // Vorgänger-Matrix für mehrere Pfade
         Map<String, List<int[]>> predecessors = new HashMap<>();
 
         while (!queue.isEmpty()) {
-            int[] current = queue.poll();
-            int y = current[0];
-            int x = current[1];
-            int currentCost = current[2];
-            int currentDir = current[3];
-            int prevY = current[4];
-            int prevX = current[5];
+            QuEl current = queue.poll();
+            int y = current.y;
+            int x = current.x;
+            int currentCost = current.cost;
+            int currentDir = current.dir;
+            int prevY = current.prevY;
+            int prevX = current.prevX;
 
             String key = y + "," + x;
             if (!predecessors.containsKey(key)) {
@@ -256,7 +285,7 @@ public class AOC2024_16 extends Application {
                     // Wenn der neue Pfad günstiger ist, aktualisieren und zur Warteschlange hinzufügen
                     if (newCost <= cost[newY][newX]) {
                         cost[newY][newX] = newCost;
-                        queue.add(new int[]{newY, newX, newCost, dir, y, x});
+                        queue.add(new QuEl(newY, newX, newCost, dir, y, x));
                     }
                 }
             }
