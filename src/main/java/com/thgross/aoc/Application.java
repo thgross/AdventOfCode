@@ -37,6 +37,14 @@ public abstract class Application {
     protected final String PURPLE_BRIGHT = "\033[0;95m";
     protected final String CYAN_BRIGHT = "\033[0;96m";
     protected final String WHITE_BRIGHT = "\033[0;97m";
+    protected final String BLACK_BRIGHT2 = "\033[1;90m";
+    protected final String RED_BRIGHT2 = "\033[1;91m";
+    protected final String GREEN_BRIGHT2 = "\033[1;92m";
+    protected final String YELLOW_BRIGHT2 = "\033[1;93m";
+    protected final String BLUE_BRIGHT2 = "\033[1;94m";
+    protected final String PURPLE_BRIGHT2 = "\033[1;95m";
+    protected final String CYAN_BRIGHT2 = "\033[1;96m";
+    protected final String WHITE_BRIGHT2 = "\033[1;97m";
 
     protected final String BG_BLACK = "\u001B[40m";
     protected final String BG_RED = "\u001B[41m";

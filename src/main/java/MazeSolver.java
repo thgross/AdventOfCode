@@ -20,7 +20,7 @@ public class MazeSolver {
         cost[startX][startY] = 0;
 
         // Vorgänger-Matrix für mehrere Pfade
-        Map<String, List<int[]>> predecessors = new HashMap<>();
+        Map<String, Set<int[]>> predecessors = new HashMap<>();
 
         while (!queue.isEmpty()) {
             int[] current = queue.poll();
@@ -32,9 +32,7 @@ public class MazeSolver {
             int prevY = current[5];
 
             String key = x + "," + y;
-            if (!predecessors.containsKey(key)) {
-                predecessors.put(key, new ArrayList<>());
-            }
+            predecessors.putIfAbsent(key, new HashSet<>());
 
             if (prevX != -1 && prevY != -1) {
                 if (currentCost == cost[x][y]) {
@@ -58,7 +56,7 @@ public class MazeSolver {
                     if (newCost < cost[newX][newY]) {
                         cost[newX][newY] = newCost;
                         queue.add(new int[]{newX, newY, newCost, dir, x, y});
-                        predecessors.put(newX + "," + newY, new ArrayList<>(List.of(new int[]{x, y}))); // Initialisiert neue Vorgänger
+                        predecessors.put(newX + "," + newY, new HashSet<>(Set.of(new int[]{x, y}))); // Initialisiert neue Vorgänger
                     } else if (newCost == cost[newX][newY]) {
                         predecessors.get(newX + "," + newY).add(new int[]{x, y}); // Fügt zusätzlichen Vorgänger hinzu
                     }
@@ -73,7 +71,7 @@ public class MazeSolver {
         }
 
         List<List<int[]>> allPaths = new ArrayList<>();
-        reconstructPaths(predecessors, endX, endY, new LinkedList<>(), allPaths, new HashSet<>());
+        reconstructPaths(predecessors, endX, endY, new LinkedList<>(), allPaths);
 
         Map<String, Object> result = new HashMap<>();
         result.put("cost", minimalCost);
@@ -81,7 +79,7 @@ public class MazeSolver {
         return result;
     }
 
-    private static void reconstructPaths(Map<String, List<int[]>> predecessors, int x, int y, LinkedList<int[]> currentPath, List<List<int[]>> allPaths, Set<String> visitedPaths) {
+    private static void reconstructPaths(Map<String, Set<int[]>> predecessors, int x, int y, LinkedList<int[]> currentPath, List<List<int[]>> allPaths) {
         currentPath.addFirst(new int[]{x, y});
 
         String key = x + "," + y;
@@ -92,7 +90,7 @@ public class MazeSolver {
         }
 
         for (int[] pred : predecessors.get(key)) {
-            reconstructPaths(predecessors, pred[0], pred[1], currentPath, allPaths, visitedPaths);
+            reconstructPaths(predecessors, pred[0], pred[1], currentPath, allPaths);
         }
 
         currentPath.removeFirst();
@@ -101,13 +99,16 @@ public class MazeSolver {
     public static void main(String[] args) {
         // Beispielirrgarten (0 = begehbar, 1 = Wand)
         int[][] maze = {
-                {0, 0, 0, 0, 1},
-                {1, 0, 1, 0, 1},
-                {1, 0, 0, 0, 0}
+                {0, 0, 0, 1, 0},
+                {1, 1, 0, 1, 0},
+                {0, 0, 0, 0, 0},
+                {0, 1, 1, 1, 0},
+                {0, 0, 0, 0, 0}
         };
+
         int startX = 0, startY = 0;
         int startDir = 1; // Beispiel: Startet in Richtung "rechts"
-        int endX = 2, endY = 4;
+        int endX = 4, endY = 4;
 
         Map<String, Object> result = findOptimalPathsWithCost(maze, startX, startY, startDir, endX, endY);
         if (result.isEmpty()) {

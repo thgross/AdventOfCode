@@ -9,13 +9,15 @@ import java.util.List;
 
 public class AOC2024_16 extends Application {
     public static void main(String[] args) {
-        var inputfile = "input16-t1.txt";
+        var inputfile = "input16.txt";
         var app = (new AOC2024_16());
         app.run(inputfile);
     }
 
-    static final char WALL = '#';
-    static final char FLOOR = '.';
+//    static final char WALL = '■';
+//    static final char WALL = '#';
+    static final char WALL = '▓';
+    static final char FLOOR = '·';
     static final char START = 'S';
     static final char END = 'E';
     static final char CUP = '^';
@@ -77,11 +79,14 @@ public class AOC2024_16 extends Application {
                     lc.reindeerPos.y = y;
                     lc.reindeerPos.x = x;
                     lc.map[y][x] = FLOOR;
-                }
-                if (lc.map[y][x] == END) {
+                } else if (lc.map[y][x] == END) {
                     lc.endPos.y = y;
                     lc.endPos.x = x;
                     lc.map[y][x] = FLOOR;
+                } else if (lc.map[y][x] == '.') {
+                    lc.map[y][x] = FLOOR;
+                } else if (lc.map[y][x] == '#') {
+                    lc.map[y][x] = WALL;
                 }
             }
         }
@@ -290,7 +295,7 @@ public class AOC2024_16 extends Application {
                             case FLOOR -> BLUE;
                             case START -> RED_BRIGHT;
                             case END -> WHITE_BRIGHT;
-                            case CUP, CRIGHT, CDOWN, CLEFT -> YELLOW_BRIGHT;
+                            case CUP, CRIGHT, CDOWN, CLEFT -> YELLOW_BRIGHT2;
                             default -> throw new RuntimeException("unknown map tile " + map[y][x]);
                         },
                         switch (map[y][x]) {
