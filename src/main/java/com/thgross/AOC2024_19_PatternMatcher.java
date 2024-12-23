@@ -4,47 +4,61 @@ import java.util.*;
 
 public class AOC2024_19_PatternMatcher {
 
-    public static void main(String[] args) {
-        // Beispiel-Listen
-        List<String> patterns = Arrays.asList("brwrr", "bggr", "gbbr", "rrbgbr", "ubwu", "bwurrg", "brgr", "bbrgwb");
-        List<String> towels = Arrays.asList("r", "wr", "b", "g", "bwu", "rb", "gb", "br");
+        public static void main(String[] args) {
+            // Beispiel-Listen
+            String[] patterns = {"brwrr", "bggr", "gbbr", "rrbgbr", "ubwu", "bwurrg", "brgr", "bbrgwb"};
+            String[] towels = {"r", "wr", "b", "g", "bwu", "rb", "gb", "br"};
 
-        // Ergebnis berechnen
-        for (String pattern : patterns) {
-            boolean canBeConstructed = canConstructPattern(pattern, towels);
-            System.out.println("Pattern: " + pattern + " -> " + (canBeConstructed ? "kann konstruiert werden" : "kann nicht konstruiert werden"));
-        }
-    }
+            // Konvertiere die Listen in char[]-Arrays
+            List<char[]> patternChars = convertToCharArrayList(patterns);
+            List<char[]> towelChars = convertToCharArrayList(towels);
 
-    public static boolean canConstructPattern(String pattern, List<String> towels) {
-        // Rückgabe, ob das Pattern konstruiert werden kann
-        return canConstructPatternHelper(pattern, towels, new HashMap<>());
-    }
-
-    private static boolean canConstructPatternHelper(String pattern, List<String> towels, Map<String, Boolean> memo) {
-        // Memoisierung, um Wiederholungen zu vermeiden
-        if (memo.containsKey(pattern)) {
-            return memo.get(pattern);
-        }
-
-        // Wenn das Pattern leer ist, kann es immer konstruiert werden
-        if (pattern.isEmpty()) {
-            return true;
-        }
-
-        // Versuche, das Pattern mit den Tüchern zu konstruieren
-        for (String towel : towels) {
-            if (pattern.startsWith(towel)) {
-                String remaining = pattern.substring(towel.length());
-                if (canConstructPatternHelper(remaining, towels, memo)) {
-                    memo.put(pattern, true);
-                    return true;
-                }
+            // Ergebnis berechnen
+            for (char[] pattern : patternChars) {
+                boolean canBeConstructed = canConstructPattern(pattern, towelChars, 0, new HashMap<>());
+                System.out.println("Pattern: " + new String(pattern) + " -> " + (canBeConstructed ? "kann konstruiert werden" : "kann nicht konstruiert werden"));
             }
         }
 
-        // Wenn keine Konstruktion möglich ist, speichern und zurückgeben
-        memo.put(pattern, false);
-        return false;
+        private static List<char[]> convertToCharArrayList(String[] strings) {
+            List<char[]> charList = new ArrayList<>();
+            for (String str : strings) {
+                charList.add(str.toCharArray());
+            }
+            return charList;
+        }
+
+        public static boolean canConstructPattern(char[] pattern, List<char[]> towels, int start, Map<Integer, Boolean> memo) {
+            if (memo.containsKey(start)) {
+                return memo.get(start);
+            }
+
+            if (start == pattern.length) {
+                return true;
+            }
+
+            for (char[] towel : towels) {
+                if (matches(pattern, towel, start)) {
+                    if (canConstructPattern(pattern, towels, start + towel.length, memo)) {
+                        memo.put(start, true);
+                        return true;
+                    }
+                }
+            }
+
+            memo.put(start, false);
+            return false;
+        }
+
+        private static boolean matches(char[] pattern, char[] towel, int start) {
+            if (start + towel.length > pattern.length) {
+                return false;
+            }
+            for (int i = 0; i < towel.length; i++) {
+                if (pattern[start + i] != towel[i]) {
+                    return false;
+                }
+            }
+            return true;
+        }
     }
-}
