@@ -105,6 +105,10 @@ public abstract class Application {
             x = pos.x;
         }
 
+        public Pos copy() {
+            return new Pos(y, x);
+        }
+
         @SuppressWarnings("EqualsDoesntCheckParameterClass")
         @Override
         public boolean equals(Object o) {
