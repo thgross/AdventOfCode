@@ -1,15 +1,18 @@
 package com.thgross;
 
 import com.thgross.aoc.Application;
+import com.thgross.aoc.StringMap;
 
 import java.io.IOException;
-import java.util.*;
-import java.util.concurrent.atomic.AtomicInteger;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 public class AOC2024_21 extends Application {
 
-    String inputFilename = "input21-t1.txt";
+    String inputFilename = "input21-t1b.txt";
 
     public static void main(String[] args) {
         var app = (new AOC2024_21());
@@ -20,12 +23,19 @@ public class AOC2024_21 extends Application {
         Map<Character, Pos> buttons = new HashMap<>();
         Map<Character, Map<Character, List<Character>>> paths = new HashMap<>();
         Character currentButton;
+        Character[][] map;
+
+        public void init() {
+            reset();
+            precalcPaths();
+            mapFromButtons();
+        }
 
         public void reset() {
             currentButton = 'A';
         }
 
-        public Character dirToChar(int dir) {
+        protected Character dirToChar(int dir) {
             return switch (dir) {
                 case TOP -> '^';
                 case RIGHT -> '>';
@@ -35,8 +45,7 @@ public class AOC2024_21 extends Application {
             };
         }
 
-        public Character[][] mapFromButtons(Map<Character, Pos> buttons) {
-            Character[][] map;
+        protected void mapFromButtons() {
             int w = 0, h = 0;
             for (Map.Entry<Character, Pos> entry : buttons.entrySet()) {
                 Pos pos = entry.getValue();
@@ -53,22 +62,29 @@ public class AOC2024_21 extends Application {
                 Pos pos = entry.getValue();
                 map[pos.y][pos.x] = chr;
             }
+        }
 
-            return map;
+        private void dumpMapRowBorder(int row) {
+            for (int x = 0; x < map[row].length; x++) {
+                System.out.print("+---");
+            }
+            System.out.print("+");
+            System.out.println();
         }
 
         public void dump() {
-            var map = mapFromButtons(buttons);
-
+            dumpMapRowBorder(0);
             for (int y = 0; y < map.length; y++) {
                 for (int x = 0; x < map[y].length; x++) {
                     if (map[y][x] == null) {
-                        System.out.print(' ');
+                        System.out.print("|   ");
                     } else {
-                        System.out.print(map[y][x]);
+                        System.out.printf("| %c ", map[y][x]);
                     }
                 }
+                System.out.print("|");
                 System.out.println();
+                dumpMapRowBorder(y);
             }
         }
 
@@ -80,25 +96,25 @@ public class AOC2024_21 extends Application {
                 // target char
                 buttons.forEach((chr2, pos2) -> {
                     var path = new ArrayList<Character>();
-                    // 1. right
+                    // right
                     if (pos2.x > pos.x) {
                         for (int i = pos.x; i < pos2.x; i++) {
                             path.add(dirToChar(RIGHT));
                         }
                     }
-                    // 2. down
+                    // down
                     if (pos2.y > pos.y) {
                         for (int i = pos.y; i < pos2.y; i++) {
                             path.add(dirToChar(BOTTOM));
                         }
                     }
-                    // 3. up
+                    // up
                     if (pos2.y < pos.y) {
                         for (int i = pos2.y; i < pos.y; i++) {
                             path.add(dirToChar(TOP));
                         }
                     }
-                    // 3. left
+                    // left
                     if (pos2.x < pos.x) {
                         for (int i = pos2.x; i < pos.x; i++) {
                             path.add(dirToChar(LEFT));
@@ -142,7 +158,7 @@ public class AOC2024_21 extends Application {
 
             currentButton = 'A';
 
-            precalcPaths();
+            init();
         }
     }
 
@@ -156,7 +172,7 @@ public class AOC2024_21 extends Application {
 
             currentButton = 'A';
 
-            precalcPaths();
+            init();
         }
     }
 
@@ -174,11 +190,11 @@ public class AOC2024_21 extends Application {
             codes.add(code);
         }
 
-        var nppad = new Numpad();
+        var smap = new StringMap(9, 70, ".");
 
+        var nppad = new Numpad();
         var dpad1 = new Dirpad();
         var dpad2 = new Dirpad();
-        var dpad3 = new Dirpad();
 
         System.out.println("----------------------------------");
         // Part 1
@@ -206,6 +222,7 @@ public class AOC2024_21 extends Application {
 
             System.out.printf("%s: %s\n", pathToString(code), pathToString(myPath));
         }
+        System.out.println("------------------------------------");
         System.out.printf("Part 1 Complexity: %d\n", part1Complexity);
     }
 
