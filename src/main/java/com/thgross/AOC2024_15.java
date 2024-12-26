@@ -1,6 +1,7 @@
 package com.thgross;
 
 import com.thgross.aoc.Application;
+import com.thgross.aoc.Pos;
 
 import javax.imageio.ImageIO;
 import java.awt.*;

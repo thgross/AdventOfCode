@@ -1,6 +1,7 @@
 package com.thgross;
 
 import com.thgross.aoc.Application;
+import com.thgross.aoc.Pos;
 
 import java.awt.*;
 import java.io.IOException;

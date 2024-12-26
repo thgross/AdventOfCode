@@ -3,7 +3,7 @@ package com.thgross.aoc;
 import java.util.Arrays;
 
 public class StringMap {
-    protected String[][] smap;
+    public String[][] smap;
 
     private StringMap() {
     }
