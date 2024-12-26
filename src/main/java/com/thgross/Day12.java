@@ -10,9 +10,9 @@ import java.time.Instant;
 import java.util.*;
 import java.util.stream.Stream;
 
-public class AOC2024_12 extends Application {
+public class Day12 extends Application {
     public static void main(String[] args) {
-        (new AOC2024_12()).run();
+        (new Day12()).run();
     }
 
     private static final int BT_TOP = 0;
@@ -95,7 +95,7 @@ public class AOC2024_12 extends Application {
         Instant stop;
     }
 
-    private final AOC2024_12.Pdata lc = new AOC2024_12.Pdata();
+    private final Day12.Pdata lc = new Day12.Pdata();
 
     @Override
     public void run() {
@@ -236,61 +236,27 @@ public class AOC2024_12 extends Application {
     }
 
     private void dumpMap(Pdata lc) {
-        final String ANSI_RESET = "\u001B[0m";
-        final String ANSI_BLACK = "\u001B[30m";
-        final String ANSI_RED = "\u001B[31m";
-        final String ANSI_GREEN = "\u001B[32m";
-        final String ANSI_YELLOW = "\u001B[33m";
-        final String ANSI_BLUE = "\u001B[34m";
-        final String ANSI_PURPLE = "\u001B[35m";
-        final String ANSI_CYAN = "\u001B[36m";
-        final String ANSI_WHITE = "\u001B[37m";
-
-        final String ANSI_BLACK_BACKGROUND = "\u001B[40m";
-        final String ANSI_RED_BACKGROUND = "\u001B[41m";
-        final String ANSI_GREEN_BACKGROUND = "\u001B[42m";
-        final String ANSI_YELLOW_BACKGROUND = "\u001B[43m";
-        final String ANSI_BLUE_BACKGROUND = "\u001B[44m";
-        final String ANSI_PURPLE_BACKGROUND = "\u001B[45m";
-        final String ANSI_CYAN_BACKGROUND = "\u001B[46m";
-        final String ANSI_WHITE_BACKGROUND = "\u001B[47m";
-        final String BLACK_BACKGROUND_BRIGHT = "\033[0;100m";// BLACK
-        final String RED_BACKGROUND_BRIGHT = "\033[0;101m";// RED
-        final String GREEN_BACKGROUND_BRIGHT = "\033[0;102m";// GREEN
-        final String YELLOW_BACKGROUND_BRIGHT = "\033[0;103m";// YELLOW
-        final String BLUE_BACKGROUND_BRIGHT = "\033[0;104m";// BLUE
-        final String PURPLE_BACKGROUND_BRIGHT = "\033[0;105m"; // PURPLE
-        final String CYAN_BACKGROUND_BRIGHT = "\033[0;106m";  // CYAN
-        final String WHITE_BACKGROUND_BRIGHT = "\033[0;107m";   // WHITE
 
         String[] bglist = new String[]{
-                ANSI_RED_BACKGROUND,
-                ANSI_GREEN_BACKGROUND,
-                ANSI_YELLOW_BACKGROUND,
-                ANSI_BLUE_BACKGROUND,
-                ANSI_PURPLE_BACKGROUND,
-                ANSI_CYAN_BACKGROUND,
-                ANSI_WHITE_BACKGROUND/*,
-                BLACK_BACKGROUND_BRIGHT,
-                RED_BACKGROUND_BRIGHT,
-                GREEN_BACKGROUND_BRIGHT,
-                YELLOW_BACKGROUND_BRIGHT,
-                BLUE_BACKGROUND_BRIGHT,
-                PURPLE_BACKGROUND_BRIGHT,
-                CYAN_BACKGROUND_BRIGHT,
-                WHITE_BACKGROUND_BRIGHT*/
+                BG_RED,
+                BG_GREEN,
+                BG_YELLOW,
+                BG_BLUE,
+                BG_PURPLE,
+                BG_CYAN,
+                BG_WHITE
         };
 
         for (var y = 0; y < lc.h; y++) {
             for (var x = 0; x < lc.w; x++) {
-                System.out.print(ANSI_BLACK);
+                System.out.print(BLACK);
                 System.out.print(bglist[lc.state[y * lc.w + x] % bglist.length]);
                 System.out.print(lc.map[y][x]);
                 System.out.print(" ");
-                System.out.print(ANSI_RESET);
+                System.out.print(RESET);
             }
             System.out.println();
         }
-        System.out.print(ANSI_RESET);
+        System.out.print(RESET);
     }
 }
