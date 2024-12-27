@@ -21,8 +21,14 @@ public class Day23 extends Application {
     @Override
     protected void calcAll(List<String> lines) throws IOException {
 
+        List<Set<String>> connections = new ArrayList<>();
+
         for (String line : lines) {
             var computers = line.split("-");
+            HashSet<String> connection = new HashSet<>();
+            connection.add(computers[0]);
+            connection.add(computers[1]);
+            connections.add(connection);
             if (!comps.containsKey(computers[0])) {
                 comps.put(computers[0], new HashSet<>());
             }
@@ -70,6 +76,9 @@ public class Day23 extends Application {
                         }
                 )
                 .toList();
+
+        System.out.println("Connections:");
+        System.out.println(connections);
 
         System.out.println("Computers:");
         for (String s : comps.keySet()) {
