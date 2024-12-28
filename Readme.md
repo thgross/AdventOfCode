@@ -9,8 +9,8 @@ My Solutions in Java 21.
 ```shell
 # compiling
 # see https://stackoverflow.com/a/31183442/4576064
-javac -sourcepath src/main/java/ -d ./target/classes src/main/java/com/thgross/AOC2024_01.java
+javac -sourcepath src/main/java/ -d ./target/classes src/main/java/com/thgross/aoc2024/AOC2024_01.java
 
 running
-java -classpath ./target/classes com.thgross.AOC2024_01
+java -classpath ./target/classes com.thgross.aoc2024.Day01
 ```
