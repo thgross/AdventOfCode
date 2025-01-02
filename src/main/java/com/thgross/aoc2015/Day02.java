@@ -19,35 +19,34 @@ public class Day02 extends Application {
     @Override
     protected void calcAll(List<String> lines) throws IOException {
 
-        long paperSize = 0;
-        long ribbonLength = 0;
+        int paperSize = 0;
+        int ribbonLength = 0;
 
-        int[][] boxes = new int[lines.size()][3];
         var areas = new int[3];
         var circumfences = new int[3];
-//        int dmin, d1, d2;
-        for (int i = 0; i < lines.size(); i++) {
-//            dmin = -1;
-            var parts = lines.get(i).split("x");
-            for (int i1 = 0; i1 < parts.length; i1++) {
-                boxes[i][i1] = Integer.parseInt(parts[i1]);
+        var box = new int[3];
+
+        for (String line : lines) {
+            var parts = line.split("x");
+            for (int i = 0; i < parts.length; i++) {
+                box[i] = Integer.parseInt(parts[i]);
             }
 
             // Part 1
-            areas[0] = boxes[i][0] * boxes[i][1];
-            areas[1] = boxes[i][1] * boxes[i][2];
-            areas[2] = boxes[i][2] * boxes[i][0];
+            areas[0] = box[0] * box[1];
+            areas[1] = box[1] * box[2];
+            areas[2] = box[2] * box[0];
             Arrays.sort(areas);
 
-            paperSize += areas[0] * 3L + areas[1] * 2L + areas[2] * 2L;
+            paperSize += areas[0] * 3 + areas[1] * 2 + areas[2] * 2;
 
             // Part 2
-            circumfences[0] = 2 * boxes[i][0] + 2 * boxes[i][1];
-            circumfences[1] = 2 * boxes[i][1] + 2 * boxes[i][2];
-            circumfences[2] = 2 * boxes[i][2] + 2 * boxes[i][0];
+            circumfences[0] = 2 * box[0] + 2 * box[1];
+            circumfences[1] = 2 * box[1] + 2 * box[2];
+            circumfences[2] = 2 * box[2] + 2 * box[0];
             Arrays.sort(circumfences);
 
-            ribbonLength += circumfences[0] + (long) boxes[i][0] * boxes[i][1] * boxes[i][2];
+            ribbonLength += circumfences[0] + box[0] * box[1] * box[2];
         }
 
         System.out.println("------------------------------------");
