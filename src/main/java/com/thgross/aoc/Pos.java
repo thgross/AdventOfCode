@@ -1,5 +1,7 @@
 package com.thgross.aoc;
 
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Objects;
 
 public class Pos implements Comparable<Pos> {
@@ -12,6 +14,13 @@ public class Pos implements Comparable<Pos> {
             new Pos(0, -1)  // links
     };
 
+    protected static final Map<Character, Integer> chardirs = new HashMap<>() {{
+        put('^', 0);
+        put('>', 1);
+        put('v', 2);
+        put('<', 3);
+    }};
+
     public Pos() {
     }
 
@@ -23,6 +32,10 @@ public class Pos implements Comparable<Pos> {
     public void add(Pos addPos) {
         y += addPos.y;
         x += addPos.x;
+    }
+
+    public void addDir(char c) {
+        add(dirs[chardirs.get(c)]);
     }
 
     public Pos plus(Pos addPos) {
