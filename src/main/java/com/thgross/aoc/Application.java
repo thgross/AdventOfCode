@@ -112,6 +112,10 @@ public abstract class Application {
     protected List<String> getFileLines(String filename) throws IOException {
         List<String> slines;
 
+        if(filename == null) {
+            return null;
+        }
+
         try (var inputStream = getFileAsInputStream(filename)) {
             if (inputStream == null) {
                 throw new RuntimeException("Stream konnte nicht geöffnet werden!");
