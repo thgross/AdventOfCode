@@ -6,6 +6,7 @@ import java.io.IOException;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -18,11 +19,28 @@ public class Day07 extends Application {
         app.run(app.inputFilename);
     }
 
+    Map<String, Integer> vals;
+
+    protected Integer getval(String src) {
+        if (src.matches("\\d+")) {
+            return Integer.parseInt(src);
+        } else {
+            if (!vals.containsKey(src)) {
+                vals.put(src, null);
+            }
+            return vals.get(src);
+        }
+    }
+
+    protected void putval(String dest, Integer val) {
+        vals.put(dest, val);
+    }
+
     @SuppressWarnings("SameParameterValue")
     @Override
     protected void calcAll(List<String> lines) throws IOException {
 
-        var vals = new HashMap<String, Integer>();
+        vals = new HashMap<>();
 
         var pSet = Pattern.compile("^(\\w+) -> ([a-z]+)$");   // lx -> er
         var pNOT = Pattern.compile("^NOT (\\w+) -> ([a-z]+)$");   // NOT lx -> er
@@ -33,69 +51,72 @@ public class Day07 extends Application {
 
             m = pSet.matcher(line);
             if (m.find()) {
-                var src1 = m.group(1);
-                Integer srcval1;
-                var dest = m.group(2);
+                var wire1Val = getval(m.group(1));
+                var destWire = m.group(2);
 
-                if (src1.matches("\\d+")) {
-                    srcval1 = Integer.parseInt(src1);
-                } else {
-                    if (!vals.containsKey(src1)) {
-                        vals.put(src1, null);
-                    }
-                    srcval1 = vals.get(src1);
+                if(wire1Val == null) {
+                    continue;
                 }
-                if (!vals.containsKey(dest)) {
-                    vals.put(dest, null);
-                }
-                // TODO: calc
+
+                // Calc
+                putval(destWire, wire1Val);
+
                 continue;
             }
 
             m = pNOT.matcher(line);
             if (m.find()) {
-                var wire1 = m.group(1);
-                var wire2 = m.group(2);
-                if (!vals.containsKey(wire1)) {
-                    vals.put(wire1, null);
+                var wire1Val = getval(m.group(1));
+                var destWire = m.group(2);
+
+                if(wire1Val == null) {
+                    continue;
                 }
-                if (!vals.containsKey(wire2)) {
-                    vals.put(wire2, null);
-                }
-                // TODO: calc
+
+                // Calc
+                putval(destWire, (~wire1Val) & 0xFFFF);
+
                 continue;
             }
 
             m = pANDOR.matcher(line);
             if (m.find()) {
-                var wire1 = m.group(1);
-                var wire2 = m.group(2);
-                var wire3 = m.group(3);
-                if (!vals.containsKey(wire1)) {
-                    vals.put(wire1, null);
+                var wire1Val = getval(m.group(1));
+                var operation = m.group(2);
+                var wire2Val = getval(m.group(3));
+                var destWire = m.group(4);
+
+                if(wire1Val == null || wire2Val == null) {
+                    continue;
                 }
-                if (!vals.containsKey(wire2)) {
-                    vals.put(wire2, null);
+
+                // Calc
+                if (operation.equals("AND")) {
+                    putval(destWire, (wire1Val & wire2Val) & 0xFFFF);
+                } else if (operation.equals("OR")) {
+                    putval(destWire, (wire1Val | wire2Val) & 0xFFFF);
                 }
-                if (!vals.containsKey(wire3)) {
-                    vals.put(wire3, null);
-                }
-                // TODO: calc
+
                 continue;
             }
 
             m = pSHIFT.matcher(line);
             if (m.find()) {
-                var wire1 = m.group(1);
-                var val = m.group(2);
-                var wire2 = m.group(3);
-                if (!vals.containsKey(wire1)) {
-                    vals.put(wire1, null);
+                var wire1Val = getval(m.group(1));
+                var operation = m.group(2);
+                var wire2Val = getval(m.group(3));
+                var destWire = m.group(4);
+
+                if(wire1Val == null || wire2Val == null) {
+                    continue;
                 }
-                if (!vals.containsKey(wire2)) {
-                    vals.put(wire2, null);
+
+                // Calc
+                if (operation.equals("LSHIFT")) {
+                    putval(destWire, (wire1Val << wire2Val) & 0xFFFF);
+                } else if (operation.equals("RSHIFT")) {
+                    putval(destWire, (wire1Val >> wire2Val) & 0xFFFF);
                 }
-                // TODO: calc
                 continue;
             }
 
