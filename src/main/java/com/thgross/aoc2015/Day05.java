@@ -23,27 +23,29 @@ public class Day05 extends Application {
     @Override
     protected void calcAll(List<String> lines) throws IOException {
 
-        int nice = 0;
+        int nice1 = 0;
+        int nice2 = 0;
 
-        var p1 = Pattern.compile("[aeiou].*[aeiou].*[aeiou]");
-        var p2 = Pattern.compile("(.)\\1");
-        var p3 = Pattern.compile("(ab|cd|pq|xy)");
+        var p1a = Pattern.compile("[aeiou].*[aeiou].*[aeiou]");
+        var p1b = Pattern.compile("(.)\\1");
+        var p1c = Pattern.compile("(ab|cd|pq|xy)");
+
+        var p2a = Pattern.compile("(..).*\\1");
+        var p2b = Pattern.compile("(.).\\1");
 
         for (String line : lines) {
-            if (!p1.matcher(line).find()) {
-                continue;
-            }
-            if (!p2.matcher(line).find()) {
-                continue;
-            }
-            if (p3.matcher(line).find()) {
-                continue;
+            if ((p1a.matcher(line).find()) && (p1b.matcher(line).find()) && (!p1c.matcher(line).find())) {
+                nice1++;
             }
 
-            nice++;
+            if ((p2a.matcher(line).find()) && (p2b.matcher(line).find())) {
+                nice2++;
+            }
+
         }
 
         System.out.println("------------------------------------");
-        System.out.printf("Part 1: nice strings: %d\n", nice);
+        System.out.printf("Part 1: nice strings: %d\n", nice1);
+        System.out.printf("Part 2: nice strings: %d\n", nice2);
     }
 }
