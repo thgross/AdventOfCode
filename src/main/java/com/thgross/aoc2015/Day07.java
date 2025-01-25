@@ -3,7 +3,7 @@ package com.thgross.aoc2015;
 import com.thgross.aoc.Application;
 
 import java.io.IOException;
-import java.util.Arrays;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -14,33 +14,122 @@ public class Day07 extends Application {
 
     String inputFilename = "aoc2015/input07.txt";
 
+    public class Wire {
+        String key;
+        Integer signal;
+        List<Gate> gates = new ArrayList<>();
+
+        public Wire(String key) {
+            this.key = key;
+            if (key.matches("\\d+")) {
+                setSignal(Integer.parseInt(key));
+            } else {
+                setSignal(null);
+            }
+        }
+
+        public void setSignal(Integer signal) {
+            this.signal = signal;
+            if (this.signal != null) {
+                for (Gate gate : gates) {
+                    gate.newSignal();
+                }
+            }
+        }
+    }
+
+
+    public class Gate {
+        Wire input1;
+        Wire input2;
+        Wire output;
+        String command;
+
+        public Gate(String command, String input1, String input2, String output) {
+            this.command = command;
+        }
+
+        public void newSignal() {
+            // input incomming
+            switch (command) {
+                case "SET":
+                    if (input1 != null && input1.signal != null) {
+                        output.setSignal(input1.signal);
+                    }
+                    break;
+                case "NOT":
+                    if (input1 != null && input1.signal != null) {
+                        output.setSignal((~input1.signal) & 0xFFFF);
+                    }
+                    break;
+                case "AND":
+                    if (input1 != null && input1.signal != null && input2 != null && input2.signal != null) {
+                        output.setSignal((input1.signal & input2.signal) & 0xFFFF);
+                    }
+                    break;
+                case "OR":
+                    if (input1 != null && input1.signal != null && input2 != null && input2.signal != null) {
+                        output.setSignal((input1.signal | input2.signal) & 0xFFFF);
+                    }
+                    break;
+                case "LSHIFT":
+                    if (input1 != null && input1.signal != null && input2 != null && input2.signal != null) {
+                        output.setSignal((input1.signal << input2.signal) & 0xFFFF);
+                    }
+                    break;
+                case "RSHIFT":
+                    if (input1 != null && input1.signal != null && input2 != null && input2.signal != null) {
+                        output.setSignal((input1.signal >> input2.signal) & 0xFFFF);
+                    }
+                    break;
+            }
+        }
+    }
+
+    public class Circuit {
+        Map<String, Wire> wires = new HashMap<>();
+        List<Gate> gates = new ArrayList<>();
+
+        private Wire addWire(String key) {
+            if (null != key) {
+                if (!wires.containsKey(key)) {
+                    wires.put(key, new Wire(key));
+                }
+                return wires.get(key);
+            }
+
+            return null;
+        }
+
+        public void addGate(String command, String input1, String input2, String output) {
+            var w1 = addWire(input1);
+            var w2 = addWire(input2);
+            var wo = addWire(output);
+            var g = new Gate(command, input1, input2, output);
+            gates.add(g);
+
+            if (null != w1) {
+                w1.gates.add(g);
+            }
+            if (null != w2) {
+                w2.gates.add(g);
+            }
+            if (null != wo) {
+                wo.gates.add(g);
+            }
+        }
+    }
+
     public static void main(String[] args) {
         var app = (new Day07());
         app.run(app.inputFilename);
     }
 
-    Map<String, Integer> vals;
-
-    protected Integer getval(String src) {
-        if (src.matches("\\d+")) {
-            return Integer.parseInt(src);
-        } else {
-            if (!vals.containsKey(src)) {
-                vals.put(src, null);
-            }
-            return vals.get(src);
-        }
-    }
-
-    protected void putval(String dest, Integer val) {
-        vals.put(dest, val);
-    }
+    Circuit circuit = new Circuit();
 
     @SuppressWarnings("SameParameterValue")
     @Override
     protected void calcAll(List<String> lines) throws IOException {
-
-        vals = new HashMap<>();
 
         var pSet = Pattern.compile("^(\\w+) -> ([a-z]+)$");   // lx -> er
         var pNOT = Pattern.compile("^NOT (\\w+) -> ([a-z]+)$");   // NOT lx -> er
@@ -51,81 +140,34 @@ public class Day07 extends Application {
 
             m = pSet.matcher(line);
             if (m.find()) {
-                var wire1Val = getval(m.group(1));
-                var destWire = m.group(2);
-
-                if(wire1Val == null) {
-                    continue;
-                }
-
-                // Calc
-                putval(destWire, wire1Val);
-
+                circuit.addGate("SET", m.group(1), null, m.group(2));
                 continue;
             }
 
             m = pNOT.matcher(line);
             if (m.find()) {
-                var wire1Val = getval(m.group(1));
-                var destWire = m.group(2);
-
-                if(wire1Val == null) {
-                    continue;
-                }
-
-                // Calc
-                putval(destWire, (~wire1Val) & 0xFFFF);
-
+                circuit.addGate("NOT", m.group(1), null, m.group(2));
                 continue;
             }
 
             m = pANDOR.matcher(line);
             if (m.find()) {
-                var wire1Val = getval(m.group(1));
-                var operation = m.group(2);
-                var wire2Val = getval(m.group(3));
-                var destWire = m.group(4);
-
-                if(wire1Val == null || wire2Val == null) {
-                    continue;
-                }
-
-                // Calc
-                if (operation.equals("AND")) {
-                    putval(destWire, (wire1Val & wire2Val) & 0xFFFF);
-                } else if (operation.equals("OR")) {
-                    putval(destWire, (wire1Val | wire2Val) & 0xFFFF);
-                }
-
+                circuit.addGate(m.group(2), m.group(1), m.group(3), m.group(4));
                 continue;
             }
 
             m = pSHIFT.matcher(line);
             if (m.find()) {
-                var wire1Val = getval(m.group(1));
-                var operation = m.group(2);
-                var wire2Val = getval(m.group(3));
-                var destWire = m.group(4);
-
-                if(wire1Val == null || wire2Val == null) {
-                    continue;
-                }
-
-                // Calc
-                if (operation.equals("LSHIFT")) {
-                    putval(destWire, (wire1Val << wire2Val) & 0xFFFF);
-                } else if (operation.equals("RSHIFT")) {
-                    putval(destWire, (wire1Val >> wire2Val) & 0xFFFF);
-                }
+                circuit.addGate(m.group(2), m.group(1), m.group(3), m.group(4));
                 continue;
             }
 
             throw new RuntimeException("Zeile konnte nicht geparst werden: " + line);
         }
 
-        System.out.println(vals);
+        System.out.println(circuit);
 
         System.out.println("------------------------------------");
-        System.out.printf("Part 1: lights on: %d\n", vals.get("a"));
+        System.out.printf("Part 1: Value on a: %d\n", circuit.wires.get("a").signal);
     }
 }
