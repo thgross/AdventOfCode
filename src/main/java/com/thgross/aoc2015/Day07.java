@@ -17,24 +17,31 @@ public class Day07 extends Application {
     public class Wire {
         String key;
         Integer signal;
-        List<Gate> gates = new ArrayList<>();
+        List<Gate> outputGates = new ArrayList<>();
 
         public Wire(String key) {
             this.key = key;
             if (key.matches("\\d+")) {
-                setSignal(Integer.parseInt(key));
+                signal = Integer.parseInt(key);
             } else {
-                setSignal(null);
+                signal = null;
             }
         }
 
         public void setSignal(Integer signal) {
             this.signal = signal;
             if (this.signal != null) {
-                for (Gate gate : gates) {
-                    gate.newSignal();
+                for (Gate outputGate : outputGates) {
+                    outputGate.calc();
                 }
             }
+        }
+
+        @Override
+        public String toString() {
+            var s = new StringBuilder();
+            s.append(signal);
+            return s.toString();
         }
     }
 
@@ -44,12 +51,17 @@ public class Day07 extends Application {
         Wire input2;
         Wire output;
         String command;
+        String commandRaw;
 
-        public Gate(String command, String input1, String input2, String output) {
+        public Gate(String command, Wire input1, Wire input2, Wire output, String commandRaw) {
             this.command = command;
+            this.input1 = input1;
+            this.input2 = input2;
+            this.output = output;
+            this.commandRaw = commandRaw;
         }
 
-        public void newSignal() {
+        public void calc() {
             // input incomming
             switch (command) {
                 case "SET":
@@ -101,22 +113,32 @@ public class Day07 extends Application {
             return null;
         }
 
-        public void addGate(String command, String input1, String input2, String output) {
+        public void addGate(String command, String input1, String input2, String output, String commandRaw) {
             var w1 = addWire(input1);
             var w2 = addWire(input2);
             var wo = addWire(output);
-            var g = new Gate(command, input1, input2, output);
+            var g = new Gate(command, w1, w2, wo, commandRaw);
             gates.add(g);
 
+
             if (null != w1) {
-                w1.gates.add(g);
+                w1.outputGates.add(g);
             }
             if (null != w2) {
-                w2.gates.add(g);
+                w2.outputGates.add(g);
             }
-            if (null != wo) {
-                wo.gates.add(g);
-            }
+
+            g.calc();
+        }
+
+        @Override
+        public String toString() {
+            var s = new StringBuilder();
+
+            s.append("wires: ");
+            s.append(wires.toString());
+
+            return s.toString();
         }
     }
 
@@ -135,30 +157,34 @@ public class Day07 extends Application {
         var pNOT = Pattern.compile("^NOT (\\w+) -> ([a-z]+)$");   // NOT lx -> er
         var pANDOR = Pattern.compile("^(\\w+) (AND|OR) (\\w+) -> ([a-z]+)$");  // as AND dw -> er
         var pSHIFT = Pattern.compile("^(\\w+) (LSHIFT|RSHIFT) (\\d+) -> ([a-z]+)$");  // as AND dw -> er
+
+        int linenr = -1;
+
         for (String line : lines) {
             Matcher m;
+            linenr++;
 
             m = pSet.matcher(line);
             if (m.find()) {
-                circuit.addGate("SET", m.group(1), null, m.group(2));
+                circuit.addGate("SET", m.group(1), null, m.group(2), line);
                 continue;
             }
 
             m = pNOT.matcher(line);
             if (m.find()) {
-                circuit.addGate("NOT", m.group(1), null, m.group(2));
+                circuit.addGate("NOT", m.group(1), null, m.group(2), line);
                 continue;
             }
 
             m = pANDOR.matcher(line);
             if (m.find()) {
-                circuit.addGate(m.group(2), m.group(1), m.group(3), m.group(4));
+                circuit.addGate(m.group(2), m.group(1), m.group(3), m.group(4), line);
                 continue;
             }
 
             m = pSHIFT.matcher(line);
             if (m.find()) {
-                circuit.addGate(m.group(2), m.group(1), m.group(3), m.group(4));
+                circuit.addGate(m.group(2), m.group(1), m.group(3), m.group(4), line);
                 continue;
             }
 
