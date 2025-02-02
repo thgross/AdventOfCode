@@ -3,7 +3,7 @@ target/
 !**/src/main/**/target/
 !**/src/test/**/target/
 **/input*
-**/input??-t*
+!**/input??-t*
 _tmp/image-*.*
 _tmp/*.mp4
 
