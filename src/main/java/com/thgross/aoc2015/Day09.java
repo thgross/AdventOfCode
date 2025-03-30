@@ -80,7 +80,7 @@ public class Day09 extends Application {
             }
         }
 
-        System.out.println(distances);
+//        System.out.println(distances);
 
         System.out.println("------------------------------------");
         System.out.println(shortestPerm);
