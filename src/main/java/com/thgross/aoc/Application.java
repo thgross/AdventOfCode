@@ -81,6 +81,8 @@ public abstract class Application {
 
     public void run(String inputFilename) {
         try {
+            System.out.println("======================================");
+            System.out.println(this.getClass());
             start = Instant.now();
             calcAll(getFileLines(inputFilename));
             stop = Instant.now();
