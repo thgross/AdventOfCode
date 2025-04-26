@@ -1,5 +1,8 @@
 package com.thgross.aoc;
 
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
@@ -75,6 +78,8 @@ public abstract class Application {
     protected final int LEFT = 3;
 
     protected Winframe winframe;
+
+    protected Gson gson = new GsonBuilder().setPrettyPrinting().serializeNulls().create();
 
     public void run() {
     }
