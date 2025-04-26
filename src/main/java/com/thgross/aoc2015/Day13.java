@@ -1,7 +1,5 @@
 package com.thgross.aoc2015;
 
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
 import com.thgross.aoc.Application;
 
 import java.io.IOException;
@@ -47,22 +45,43 @@ public class Day13 extends Application {
             }
         }
 
-//        System.out.print(gson.toJson(persons));
+        // Part 1
         List<List<String>> permutations = new ArrayList<>();
         generatePermutations(new ArrayList<>(persons.keySet()), new ArrayList<>(), permutations);
-//        System.out.print(gson.toJson(permutations));
 
         // Calc global Happiness
-        Integer maxHappiness1 = Integer.MIN_VALUE;
+        int maxHappiness1 = Integer.MIN_VALUE;
+        Integer permutations1 = permutations.size();
         for (List<String> permutation : permutations) {
             var happiness = calcHappiness(permutation, persons);
-            if(happiness > maxHappiness1) {
+            if (happiness > maxHappiness1) {
                 maxHappiness1 = happiness;
             }
         }
 
+        // Part 2
+        persons.forEach((pname, p) -> p.happiness.put("Ich", 0));
+        Set<String> personnames = persons.keySet();
+        var ich = new Person();
+        personnames.forEach(n -> ich.happiness.put(n, 0));
+        persons.put("Ich", ich);
+
+        permutations = new ArrayList<>();
+        generatePermutations(new ArrayList<>(persons.keySet()), new ArrayList<>(), permutations);
+
+        // Calc global Happiness
+        int maxHappiness2 = Integer.MIN_VALUE;
+        Integer permutations2 = permutations.size();
+        for (List<String> permutation : permutations) {
+            var happiness = calcHappiness(permutation, persons);
+            if (happiness > maxHappiness2) {
+                maxHappiness2 = happiness;
+            }
+        }
+
         System.out.println("--------------------------------------");
-        System.out.printf("Part 1: %d people. Max Happiness: %d\n", persons.size(), maxHappiness1);
+        System.out.printf("Part 1: %d people. %d permutations. Max Happiness: %d\n", persons.size(), permutations1, maxHappiness1);
+        System.out.printf("Part 1: %d people. %d permutations. Max Happiness: %d\n", persons.size(), permutations2, maxHappiness2);
 //        System.out.printf("Part 2: Sum: %d\n", val2);
     }
 
