@@ -86,13 +86,13 @@ public abstract class Application {
 
     public void run(String inputFilename) {
         try {
-            System.out.println("======================================");
+            System.out.println("============================================================================");
             System.out.println(this.getClass());
             start = Instant.now();
             calcAll(getFileLines(inputFilename));
             stop = Instant.now();
 
-            System.out.println("======================================");
+            System.out.println("============================================================================");
             System.out.printf("Runtime: %s\n", Duration.between(start, stop));
         } catch (IOException e) {
             throw new RuntimeException(e);
