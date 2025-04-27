@@ -18,6 +18,8 @@ public class Day14 extends Application {
         int restDuration;
         int cycleDistance;
         int cycleDuration;
+        int currentDistance = 0;
+        int currentPoints = 0;
     }
 
     public static void main(String[] args) {
@@ -62,8 +64,39 @@ public class Day14 extends Application {
             }
         }
 
+        int maxPoints = 0;
+        String deerMaxPoints = "";
+
+        // Part 2
+        for (int runSecond = 0; runSecond < seconds1; runSecond++) {
+            int maxDistance = 0;
+            for (String deerName : deers.keySet()) {
+                var deer = deers.get(deerName);
+                var cyclePos = runSecond % deer.cycleDuration;
+                if (cyclePos < deer.flyDuration) {
+                    deer.currentDistance += deer.speed;
+                }
+                if (deer.currentDistance > maxDistance) {
+                    maxDistance = deer.currentDistance;
+                }
+            }
+            for (String deerName : deers.keySet()) {
+                var deer = deers.get(deerName);
+                if(deer.currentDistance == maxDistance) {
+                    deer.currentPoints++;
+                }
+                if(deer.currentPoints > maxPoints) {
+                    maxPoints = deer.currentPoints;
+                    deerMaxPoints = deerName;
+                }
+            }
+        }
+
+//        System.out.println(gson.toJson(deers));
+
         System.out.println("----------------------------------------------------------------------------");
         System.out.printf("Part 1: %d reindeers. After %d seconds, %s has traveled %d km.\n", deers.size(), seconds1, fastestDeer1, distance1);
+        System.out.printf("Part 1: %d reindeers. After %d seconds, %s has accumulated %d points.\n", deers.size(), seconds1, deerMaxPoints, maxPoints);
     }
 
     private int caldDistance(Reindeer deer, int seconds) {
