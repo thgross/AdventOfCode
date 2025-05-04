@@ -14,6 +14,17 @@ public class Pos implements Comparable<Pos> {
             new Pos(0, -1)  // links
     };
 
+    public static final Pos[] around = {
+            new Pos(-1, 0), // oben
+            new Pos(-1, 1), // oben rechts
+            new Pos(0, 1),  // rechts
+            new Pos(1, 1),  // unten rechts
+            new Pos(1, 0),  // unten
+            new Pos(1, -1),  // unten links
+            new Pos(0, -1),  // links
+            new Pos(-1, -1)  // oben links
+    };
+
     protected static final Map<Character, Integer> chardirs = new HashMap<>() {{
         put('^', 0);
         put('>', 1);
