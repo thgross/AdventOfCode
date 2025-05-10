@@ -178,7 +178,7 @@ public class AOC2024_15 extends Application {
             }
             oldRobotPos.clone(lc.robot2Pos);
         }
-        System.out.printf("Final Map 1 (%d Moves):\n", lc.robotRules.size());
+        System.out.printf("Final Map 2 (%d Moves):\n", lc.robotRules.size());
         dumpMap(lc.map2, null);
         long sumOfCoordinates2 = calcSumOfBoxCoordinates(lc.map2);
 
