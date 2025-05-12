@@ -68,7 +68,10 @@ public class Day19 extends Application {
         System.out.printf("Part 2 | Medicine created from 'e' after %d replacements: %d\n", 1, replacementCount);
     }
 
-    // Lösung laut https://old.reddit.com/r/adventofcode/comments/3xflz8/day_19_solutions/cy4ctw3/
+    // Lösung laut https://old.reddit.com/r/adventofcode/comments/3xflz8/day_19_solutions/cy4ctw3/.
+    // Funktioniert vermutlich deshalb: "Dass dieser Ansatz für Ihr Problem so gut funktioniert, deutet darauf hin,
+    // dass die Regeln sorgfältig entworfen wurden, um ein eindeutiges oder zumindest greedy-optimales Ergebnis zu
+    // ermöglichen." (https://claude.ai/chat/ca729be3-7c71-4b71-b4d2-08407757fc68)
     public static Integer findMinimumTransformations(String start, String target, List<Map.Entry<String, String>> rules) {
         var z = 0;
         while (!Objects.equals(target, "e")) {
