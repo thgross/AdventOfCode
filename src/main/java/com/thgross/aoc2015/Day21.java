@@ -121,6 +121,8 @@ public class Day21 extends Application {
         var boss = new Fighter();
         int costMinimum = 999999999;
         int costMinimumFight = 0;
+        int costMaximum = -999999999;
+        int costMaximumFight = 0;
         int costCurrent = 0;
         int fightCount = 0;
         List<Item> pitems;
@@ -185,6 +187,12 @@ public class Day21 extends Application {
                                 costMinimumFight = fightCount;
                             }
                         }
+                        if (boss.isAlive()) {
+                            if (costCurrent > costMaximum) {
+                                costMaximum = costCurrent;
+                                costMaximumFight = fightCount;
+                            }
+                        }
 
                         // TODO: Calc
                     }
@@ -197,6 +205,6 @@ public class Day21 extends Application {
 
         System.out.println("----------------------------------------------------------------------------");
         System.out.printf("Part 1 | checked %d fights: Minimal Win Cost: %d (Fight %d)\n", fightCount, costMinimum, costMinimumFight);
-//        System.out.printf("Part 2 | Medicine created from 'e' after %d replacements: %d\n", 1, replacementCount);
+        System.out.printf("Part 2 | checked %d fights: Maximal Lose Cost: %d (Fight %d)\n", fightCount, costMaximum, costMaximumFight);
     }
 }
