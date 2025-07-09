@@ -107,12 +107,12 @@ public class Day22 extends Application {
         activeSpellsTurnsLeft = new HashMap<>();
 
         // Part 1
-        while (player.isAlive() && boss.isAlive()) {
-        }
+//        while (player.isAlive() && boss.isAlive()) {
+//        }
 
         System.out.println("----------------------------------------------------------------------------");
-        System.out.printf("Part 1 | checked %d fights: Minimal Win Cost: %d (Fight %d)\n", fightCount, costMinimum, costMinimumFight);
-        System.out.printf("Part 2 | checked %d fights: Maximal Lose Cost: %d (Fight %d)\n", fightCount, costMaximum, costMaximumFight);
+        // System.out.printf("Part 1 | checked %d fights: Minimal Win Cost: %d (Fight %d)\n", fightCount, costMinimum, costMinimumFight);
+        // System.out.printf("Part 2 | checked %d fights: Maximal Lose Cost: %d (Fight %d)\n", fightCount, costMaximum, costMaximumFight);
     }
 
     protected void turn(int turnNr) {
