@@ -12,6 +12,7 @@ import java.time.Duration;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.regex.Pattern;
 import java.util.stream.Stream;
 
 public abstract class Application {
@@ -119,7 +120,7 @@ public abstract class Application {
     protected List<String> getFileLines(String filename) throws IOException {
         List<String> slines;
 
-        if(filename == null) {
+        if (filename == null) {
             return null;
         }
 
@@ -168,5 +169,14 @@ public abstract class Application {
     protected void printChar(char ch, String color, String bgcolor) {
         System.out.print(bgcolor);
         printChar(ch, color);
+    }
+
+    protected String extract(String value, String regex) {
+        var matcher = Pattern.compile(regex).matcher(value);
+        if (matcher.find()) {
+            return matcher.group(1);
+        }
+
+        throw new RuntimeException("Regex not found in value.");
     }
 }

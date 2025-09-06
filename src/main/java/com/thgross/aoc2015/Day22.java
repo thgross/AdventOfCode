@@ -93,7 +93,12 @@ public class Day22 extends Application {
     protected void calcAll(List<String> lines) throws IOException {
 
         player = new Fighter(50, 500, 0, 0);
-        boss = new Fighter(58, 0, 0, 9);
+        boss = new Fighter(
+                Integer.parseInt(extract(lines.get(0), "^Hit Points: (\\d+)$")),
+                0,
+                0,
+                Integer.parseInt(extract(lines.get(1), "^Damage: (\\d+)$"))
+        );
 
         allSpells = new ArrayList<Spell>();
         allSpells.add(new Spell("Magic Missile", 53, 0, 0, 0, 0, 4));
