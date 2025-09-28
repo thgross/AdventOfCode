@@ -47,6 +47,10 @@ public class Pos implements Comparable<Pos> {
         x += addPos.x;
     }
 
+    public void add(Integer dir) {
+        add(dirs[dir]);
+    }
+
     public void addDir(char c) {
         add(dirs[chardirs.get(c)]);
     }
@@ -60,10 +64,13 @@ public class Pos implements Comparable<Pos> {
         return new Pos(this.y + y, this.x + x);
     }
 
-    @SuppressWarnings("unused")
     public void sub(Pos subPos) {
         y -= subPos.y;
         x -= subPos.x;
+    }
+
+    public void sub(Integer dir) {
+        sub(dirs[dir]);
     }
 
     public void move(int dir) {
