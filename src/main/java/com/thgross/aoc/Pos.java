@@ -33,6 +33,8 @@ public class Pos implements Comparable<Pos> {
     }};
 
     public Pos() {
+        this.x = 0;
+        this.y = 0;
     }
 
     public Pos(int y, int x) {
@@ -53,10 +55,12 @@ public class Pos implements Comparable<Pos> {
         return new Pos(y + addPos.y, x + addPos.x);
     }
 
+    @SuppressWarnings("unused")
     public Pos plus(int y, int x) {
         return new Pos(this.y + y, this.x + x);
     }
 
+    @SuppressWarnings("unused")
     public void sub(Pos subPos) {
         y -= subPos.y;
         x -= subPos.x;
@@ -79,6 +83,7 @@ public class Pos implements Comparable<Pos> {
         x = pos.x;
     }
 
+    @SuppressWarnings("unused")
     public Pos copy() {
         return new Pos(y, x);
     }
