@@ -46,7 +46,7 @@ public class Day01 extends Application {
                 pos.y += dirs[dir].y;
                 var poshash = "x:" + pos.x + " y:" + pos.y;
                 if (positionHashes.contains(poshash) && posFirstDoubleVisit == null) {
-                    posFirstDoubleVisit = new Pos(pos.y, pos.x);
+                    posFirstDoubleVisit = pos.copy();
                 } else {
                     positionHashes.add(poshash);
                 }

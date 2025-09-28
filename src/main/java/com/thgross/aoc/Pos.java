@@ -83,7 +83,6 @@ public class Pos implements Comparable<Pos> {
         x = pos.x;
     }
 
-    @SuppressWarnings("unused")
     public Pos copy() {
         return new Pos(y, x);
     }
