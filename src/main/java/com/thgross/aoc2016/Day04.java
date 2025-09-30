@@ -13,6 +13,7 @@ public class Day04 extends Application {
 
     static class Room {
         String namesRaw;
+        String namesRawShifted;
         Map<Character, Integer> charcounts;
         List<Map.Entry<Character, Integer>> charlist;
         Integer sectorId;
@@ -26,6 +27,11 @@ public class Day04 extends Application {
             room.checksum = matcher.group(4);
             room.init();
             return room;
+        }
+
+        @Override
+        public String toString() {
+            return String.format("sectorId: %d\n\tnamesRaw: %s\n\tnamesRawShifted: %s", sectorId, namesRaw, namesRawShifted);
         }
 
         private void init() {
@@ -56,6 +62,24 @@ public class Day04 extends Application {
                 checksumBuilder.append(charlist.get(i).getKey());
             }
             calcChecksum = checksumBuilder.toString();
+
+            shiftNamesRaw();
+        }
+
+        private void shiftNamesRaw() {
+            var shifted = new StringBuilder();
+            for (char c : namesRaw.toCharArray()) {
+                if (c == '-') {
+                    shifted.append(shiftChar(c, sectorId, '-', 2));
+                } else {
+                    shifted.append(shiftChar(c, sectorId, 'a', 26));
+                }
+            }
+            namesRawShifted = shifted.toString();
+        }
+
+        private char shiftChar(char c, int offset, char baseChar, int modulo) {
+            return (char) ((((int) c - (int) baseChar + offset) % modulo) + (int) baseChar);
         }
 
         public boolean isReal() {
@@ -71,7 +95,8 @@ public class Day04 extends Application {
     protected void calcAll(List<String> lines) throws IOException {
 
         Long idSum = 0L;
-//        List<Room> rooms = new ArrayList<>();
+        Integer idLocationPart2 = 0;
+        List<Room> rooms = new ArrayList<>();
 
         var pattern = Pattern.compile("^(((?:[a-z]+)-?)+)-(\\d+)\\[(\\w+)]$");
 
@@ -82,11 +107,16 @@ public class Day04 extends Application {
                 if (room.isReal()) {
                     idSum += room.sectorId;
                 }
-//                rooms.add(room);
+                if (room.namesRawShifted.contains("pole")) {
+                    System.out.printf("%s\n", room.toString());
+                    idLocationPart2 = room.sectorId;
+                }
+                rooms.add(room);
             }
         }
 
-        System.out.printf("Part 1 Sum of Sectror IDs: %d\n", idSum);
+        System.out.printf("Part 1 Sum of Sector IDs: %d\n", idSum);
+        System.out.printf("Part 1 Sector ID: %d\n", idLocationPart2);
 //        System.out.printf("Part 2 real Triangles: %d\n", numRealTrianglesPart2);
     }
 }
