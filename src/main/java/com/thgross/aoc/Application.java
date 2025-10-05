@@ -15,6 +15,7 @@ import java.util.List;
 import java.util.regex.Pattern;
 import java.util.stream.Stream;
 
+@SuppressWarnings("unused")
 public abstract class Application {
 
     Instant start;
@@ -87,8 +88,8 @@ public abstract class Application {
 
     public void run(String inputFilename) {
         try {
-            System.out.println("============================================================================");
             System.out.println(this.getClass());
+            System.out.println("============================================================================");
             start = Instant.now();
             calcAll(getFileLines(inputFilename));
             stop = Instant.now();
