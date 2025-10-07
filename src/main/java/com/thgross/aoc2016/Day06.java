@@ -41,6 +41,8 @@ public class Day06 extends Application {
         }
 
         StringBuilder p1Message = new StringBuilder();
+        StringBuilder p2Message = new StringBuilder();
+
         List<Map.Entry<Character, Integer>> charlist;
 
         for (var charCountMap : charCountMaps) {
@@ -53,8 +55,10 @@ public class Day06 extends Application {
                 }
             });
             p1Message.append(charlist.getFirst().getKey());
+            p2Message.append(charlist.getLast().getKey());
         }
 
         System.out.printf("Part 1 Message: %s\n", p1Message);
+        System.out.printf("Part 2 Message: %s\n", p2Message);
     }
 }
