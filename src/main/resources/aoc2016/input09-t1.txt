@@ -1,1 +1,1 @@
-A(2x2)BCD(2x2)EFG
+(3x3)XYZ
