@@ -74,13 +74,13 @@ public class Day10 extends Application {
             matcherBot = patternBotGives.matcher(line);
             if (matcherBot.find()) {
 
-                var botFrom = bots.get(Integer.parseInt(matcherBot.group(1)));
-
-                var poolLowTo = matcherBot.group(2) == "bot" ? bots : outputs;
-                var poolHighTo = matcherBot.group(4) == "bot" ? bots : outputs;
-
-                var lowTo = poolLowTo.get(Integer.parseInt(matcherBot.group(3)));
-                var highTo = poolHighTo.get(Integer.parseInt(matcherBot.group(4)));
+//                var botFrom = bots.get(Integer.parseInt(matcherBot.group(1)));
+//
+//                var poolLowTo = matcherBot.group(2) == "bot" ? bots : outputs;
+//                var poolHighTo = matcherBot.group(4) == "bot" ? bots : outputs;
+//
+//                var lowTo = poolLowTo.get(Integer.parseInt(matcherBot.group(3)));
+//                var highTo = poolHighTo.get(Integer.parseInt(matcherBot.group(4)));
 
             }
         }
