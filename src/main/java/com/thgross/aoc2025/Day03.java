@@ -8,7 +8,7 @@ import java.util.List;
 public class Day03 extends Application {
 
     String inputFilename = "aoc2025/input03.txt";
-    private static final int[] POW10 = {1, 10, 100, 1000, 10000, 100000, 1000000};
+    private static final long[] POW10 = {1, 10, 100, 1000, 10000, 100000, 1000000};
 
     public static void main(String[] args) {
         var app = (new Day03());
