@@ -33,13 +33,13 @@ public class Day03 extends Application {
         System.out.printf("Part 1 max joltage: %d\n", part1joltage);
     }
 
-    private int getMaxJoltage(int[] bank, @SuppressWarnings("SameParameterValue") int numDigits) {
-        int joltage = 0;
+    private long getMaxJoltage(int[] bank, @SuppressWarnings("SameParameterValue") int numDigits) {
+        long joltage = 0;
         int bpos = 0;
-        for (var digit = 0; digit < numDigits; digit++) {
-            int digitval = 0;
+        for (int digit = 0; digit < numDigits; digit++) {
+            long digitval = 0;
             // suchen zwischen bpos und bank.size - numDigits + digit
-            for (var n = bpos; n < bank.length - numDigits + digit + 1; n++) {
+            for (int n = bpos; n < bank.length - numDigits + digit + 1; n++) {
                 if (bank[n] > digitval) {
                     digitval = bank[n];
                     bpos = n + 1;
