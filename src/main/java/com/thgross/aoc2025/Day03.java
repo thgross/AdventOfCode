@@ -8,7 +8,27 @@ import java.util.List;
 public class Day03 extends Application {
 
     String inputFilename = "aoc2025/input03.txt";
-    private static final long[] POW10 = {1, 10, 100, 1000, 10000, 100000, 1000000};
+    private static final long[] POW10 = {
+            1L,
+            10L,
+            100L,
+            1000L,
+            10000L,
+            100000L,
+            1000000L,
+            10000000L,
+            100000000L,
+            1000000000L,
+            10000000000L,
+            100000000000L,
+            1000000000000L,
+            10000000000000L,
+            100000000000000L,
+            1000000000000000L,
+            10000000000000000L,
+            100000000000000000L,
+            1000000000000000000L
+    };
 
     public static void main(String[] args) {
         var app = (new Day03());
@@ -19,6 +39,7 @@ public class Day03 extends Application {
     protected void calcAll(List<String> lines) throws IOException {
 
         long part1joltage = 0;
+        long part2joltage = 0;
 
         for (String line : lines) {
             int[] bank = line.chars()
@@ -27,10 +48,13 @@ public class Day03 extends Application {
             long linejoltage = getMaxJoltage(bank, 2);
 //            System.out.printf("Line: %s | Joltage: %d\n", line, linejoltage);
             part1joltage += linejoltage;
+            linejoltage = getMaxJoltage(bank, 12);
+            part2joltage += linejoltage;
         }
 
         System.out.println("------------------------------------");
         System.out.printf("Part 1 max joltage: %d\n", part1joltage);
+        System.out.printf("Part 2 max joltage: %d\n", part2joltage);
     }
 
     private long getMaxJoltage(int[] bank, @SuppressWarnings("SameParameterValue") int numDigits) {
