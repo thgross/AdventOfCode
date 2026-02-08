@@ -1,6 +1,7 @@
 package com.thgross.aoc2025;
 
 import com.thgross.aoc.Application;
+import org.checkerframework.checker.nullness.qual.NonNull;
 
 import java.io.IOException;
 import java.util.List;
@@ -21,30 +22,63 @@ public class Day04 extends Application {
     protected void calcAll(List<String> lines) throws IOException {
 
         int part1Rolls = 0;
+        int part2Rolls = 0;
 
         var map = new char[lines.size()][lines.getFirst().length()];
 
         for (int row = 0; row < lines.size(); row++) {
             var rowchars = lines.get(row).toCharArray();
+            // arraycopy anstatt zeichenweise Füllung des Arrays
             System.arraycopy(rowchars, 0, map[row], 0, rowchars.length);
         }
 
+        int accessible = markAccessible(map);
+        removeAccessible(map);
+        dumpMap(map);
+
+        // Part 1
+        part1Rolls += accessible;
+        part2Rolls += accessible;
+
+        int removed;
+        do {
+            markAccessible(map);
+            removed = removeAccessible(map);
+            part2Rolls += removed;
+        } while (removed > 0);
+
+        System.out.println("------------------------------------");
+        System.out.printf("Part 1 rolls: %d\n", part1Rolls);
+        System.out.printf("Part 2 rolls: %d\n", part2Rolls);
+    }
+
+    private int markAccessible(char[] @NonNull [] map) {
+        int rolls = 0;
         for (int row = 0; row < map.length; row++) {
             for (int col = 0; col < map[row].length; col++) {
                 if (isAccessible(map, row, col)) {
-                    part1Rolls++;
+                    rolls++;
                     map[row][col] = ACCESSIBLE;
                 }
             }
         }
-        dumpMap(map);
-
-        System.out.println("------------------------------------");
-        System.out.printf("Part 1 rolls: %d\n", part1Rolls);
-//        System.out.printf("Part 2 max joltage: %d\n", part2joltage);
+        return rolls;
     }
 
-    private boolean isAccessible(char[][] map, int row, int col) {
+    private int removeAccessible(char[] @NonNull [] map) {
+        int removed = 0;
+        for (int row = 0; row < map.length; row++) {
+            for (int col = 0; col < map[row].length; col++) {
+                if (map[row][col] == ACCESSIBLE) {
+                    removed++;
+                    map[row][col] = EMPTY;
+                }
+            }
+        }
+        return removed;
+    }
+
+    private boolean isAccessible(char[] @NonNull [] map, int row, int col) {
 
         if (map[row][col] != ROLL) {
             return false;
