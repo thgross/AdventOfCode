@@ -67,6 +67,7 @@ public class Day06 extends Application {
     protected void calcAll(List<String> lines) throws IOException {
 
         long part1Total;
+        long part2Total;
 
         var patternLine = Pattern.compile("(\\s*(\\S+))");
         var matcher = patternLine.matcher(lines.getFirst());
@@ -76,9 +77,9 @@ public class Day06 extends Application {
             problemCount++;
         }
 
-        var problems = new ArrayList<Problem>(problemCount);
+        var problems1 = new ArrayList<Problem>(problemCount);
         for (int i = 0; i < problemCount; i++) {
-            problems.add(new Problem(new long[argCount], '\0'));
+            problems1.add(new Problem(new long[argCount], '\0'));
         }
         int opId = 0;
         for (String line : lines) {
@@ -88,9 +89,9 @@ public class Day06 extends Application {
 
             while (matcher.find()) {
                 if (opId < argCount) {
-                    problems.get(problemId).arg[opId] = Integer.parseInt(matcher.group(2));    // Group 1 sind Leerzeichen (optional)
+                    problems1.get(problemId).arg[opId] = Integer.parseInt(matcher.group(2));    // Group 1 sind Leerzeichen (optional)
                 } else {
-                    problems.get(problemId).operation = matcher.group(2).charAt(0);    // Group 1 sind Leerzeichen (optional)
+                    problems1.get(problemId).operation = matcher.group(2).charAt(0);    // Group 1 sind Leerzeichen (optional)
                 }
                 problemId++;
             }
@@ -98,13 +99,61 @@ public class Day06 extends Application {
             opId++;
         }
 
-        part1Total = problems.stream()
+        part1Total = problems1.stream()
                 .mapToLong(Problem::calculate)
                 .sum();
 
 //        problems.forEach(System.out::println);
 
+        // Part 2
+        var linesCount = lines.size();
+        var problems2 = new ArrayList<Problem>();
+        Problem prob;
+        List<Long> probVals = new ArrayList<>();
+        char probOp = '\0';
+        for (int x = 0; x < lines.getFirst().length(); x++) {
+            Long probVal = 0L;
+            if (lines.get(linesCount - 1).charAt(x) != ' ') {
+                // neues Problem
+                if (!probVals.isEmpty() && probOp != '\0') {
+                    problems2.add(
+                            new Problem(
+                                    probVals.stream().mapToLong(l -> l).toArray(),
+                                    probOp
+                            )
+                    );
+                }
+                probVals = new ArrayList<>();
+                probVal = 0L;
+                probOp = lines.get(linesCount - 1).charAt(x);
+            }
+            int posmul = 1;
+            for (int y = lines.size() - 2; y >= 0; y--) {
+                var numchar = lines.get(y).charAt(x);
+                if (numchar != ' ') {
+                    probVal += (long) (numchar - '0') * posmul;
+                    posmul *= 10;
+                }
+            }
+            if (probVal != 0L) {
+                probVals.add(probVal);
+            }
+        }
+        if (!probVals.isEmpty() && probOp != '\0') {
+            problems2.add(
+                    new Problem(
+                            probVals.stream().mapToLong(l -> l).toArray(),
+                            probOp
+                    )
+            );
+        }
+
+        part2Total = problems2.stream()
+                .mapToLong(Problem::calculate)
+                .sum();
+
         System.out.println("------------------------------------");
         System.out.printf("Part 1 Total: %d\n", part1Total);
+        System.out.printf("Part 2 Total: %d\n", part2Total);
     }
 }
