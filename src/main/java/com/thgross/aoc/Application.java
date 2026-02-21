@@ -12,6 +12,7 @@ import java.time.Duration;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.regex.Pattern;
 import java.util.stream.Stream;
 
@@ -179,5 +180,29 @@ public abstract class Application {
         }
 
         throw new RuntimeException("Regex not found in value.");
+    }
+
+    protected void dumpCharMap(char[][] map) {
+        for (char[] chars : map) {
+            for (char aChar : chars) {
+                printChar(aChar);
+            }
+            System.out.println();
+        }
+    }
+
+    protected void dumpCharMap(char[][] map, Map<Character, String> colorMap) {
+        String col;
+        for (char[] chars : map) {
+            for (char aChar : chars) {
+                col = colorMap.getOrDefault(aChar, null);
+                if (col != null) {
+                    printChar(aChar, col);
+                } else {
+                    printChar(aChar);
+                }
+            }
+            System.out.println();
+        }
     }
 }
