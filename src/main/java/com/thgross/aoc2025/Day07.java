@@ -16,7 +16,7 @@ public class Day07 extends Application {
     static final char SPLITTER = '^';
     static final char BEAM = '|';
 
-    public static void main(String[] args) {
+    static void main() {
         var app = (new Day07());
         app.run(app.inputFilename);
     }
@@ -25,7 +25,7 @@ public class Day07 extends Application {
     protected void calcAll(List<String> lines) throws IOException {
 
         long part1Splits = 0;
-//        long part2Total = 0;
+        long part2Paths;
 
         char[][] map = new char[lines.size() / 2][lines.getFirst().length()];
         Pos start = new Pos();
@@ -50,6 +50,10 @@ public class Day07 extends Application {
 
         dumpCharMap(map, colorMap);
 
+        // Part 2 calculations
+        part2Paths = countPaths(map, start.y, start.x);
+
+        // Part 1 calculations (modifies map)
         for (int y = 1; y < map.length; y++) {
             for (int x = 0; x < map[y].length; x++) {
                 char c = map[y][x];
@@ -58,14 +62,14 @@ public class Day07 extends Application {
                     part1Splits++;
                     // Beam weiter nach unten wandern lassen, links und rechts
                     for (int ly = y; ly < map.length; ly++) {
-                        if(map[ly][x - 1] == EMPTY) {
+                        if (map[ly][x - 1] == EMPTY) {
                             map[ly][x - 1] = BEAM;
                         } else {
                             break;
                         }
                     }
                     for (int ry = y; ry < map.length; ry++) {
-                        if(map[ry][x + 1] == EMPTY) {
+                        if (map[ry][x + 1] == EMPTY) {
                             map[ry][x + 1] = BEAM;
                         } else {
                             break;
@@ -79,6 +83,17 @@ public class Day07 extends Application {
 
         System.out.println("------------------------------------");
         System.out.printf("Part 1 Splits: %d\n", part1Splits);
-//        System.out.printf("Part 2 Total: %d\n", part2Total);
+        System.out.printf("Part 2 Paths: %d\n", part2Paths);
+    }
+
+    protected long countPaths(char[][] map, int y, int x) {
+        int ytmp = y;
+        while (ytmp < map.length) {
+            if (map[ytmp][x] == SPLITTER) {
+                return countPaths(map, ytmp, x - 1) + countPaths(map, ytmp, x + 1);
+            }
+            ytmp++;
+        }
+        return 1;
     }
 }
