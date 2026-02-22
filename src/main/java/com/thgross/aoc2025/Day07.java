@@ -9,7 +9,7 @@ import java.util.Map;
 
 public class Day07 extends Application {
 
-    String inputFilename = "aoc2025/input07.txt";
+    String inputFilename = "aoc2025/input07-t1.txt";
 
     static final char START = 'S';
     static final char EMPTY = '.';
@@ -50,8 +50,11 @@ public class Day07 extends Application {
 
         dumpCharMap(map, colorMap);
 
+        long[][] cmap = new long[lines.size() / 2][lines.getFirst().length()];
+
         // Part 2 calculations
-        part2Paths = countPaths(map, start.y, start.x);
+        part2Paths = countPaths(map, cmap);
+        dumpCMap(map, cmap);
 
         // Part 1 calculations (modifies map)
         for (int y = 1; y < map.length; y++) {
@@ -79,6 +82,7 @@ public class Day07 extends Application {
             }
         }
 
+        System.out.println("------------------------------------");
         dumpCharMap(map, colorMap);
 
         System.out.println("------------------------------------");
@@ -86,14 +90,40 @@ public class Day07 extends Application {
         System.out.printf("Part 2 Paths: %d\n", part2Paths);
     }
 
-    protected long countPaths(char[][] map, int y, int x) {
-        int ytmp = y;
-        while (ytmp < map.length) {
-            if (map[ytmp][x] == SPLITTER) {
-                return countPaths(map, ytmp, x - 1) + countPaths(map, ytmp, x + 1);
+    protected long countPaths(char[][] map, long[][] cmap) {
+        for (int x = 0; x < map[0].length; x++) {
+            if (map[0][x] == START) {
+                cmap[0][x] = 1;
             }
-            ytmp++;
         }
-        return 1;
+
+        for (int y = 1; y < map.length; y++) {
+            for (int x = 0; x < map[y].length; x++) {
+                if (map[y][x] == SPLITTER) {
+                    cmap[y][x - 1] += cmap[y - 1][x - 1] + cmap[y - 1][x];
+                    cmap[y][x + 1] += cmap[y - 1][x] + cmap[y - 1][x + 1];
+                } else {
+                    cmap[y][x] += cmap[y - 1][x];
+                }
+            }
+        }
+
+        return 0;
+    }
+
+    void dumpCMap(char[][] map, long[][] cmap) {
+        long lsum;
+        for (int y = 0; y < cmap.length; y++) {
+            lsum = 0;
+            for (int x = 0; x < cmap[y].length; x++) {
+                if (map[y][x] == SPLITTER) {
+                    System.out.printf("%s  ", SPLITTER);
+                } else {
+                    lsum += cmap[y][x];
+                    System.out.printf("%-3d", cmap[y][x]);
+                }
+            }
+            System.out.printf("\t%3d\n", lsum);
+        }
     }
 }
