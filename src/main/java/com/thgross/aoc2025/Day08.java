@@ -83,7 +83,7 @@ public class Day08 extends Application {
             part1CircuitMult *= circuits.get(p1I).boxes.size();
         }
 
-        System.out.println(circuits);
+//        System.out.println(circuits);
 
         System.out.println("------------------------------------");
 //        dumpCharMap(map, colorMap);
