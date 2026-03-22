@@ -19,8 +19,8 @@ public class Day08 extends Application {
     @Override
     protected void calcAll(List<String> lines) throws IOException {
 
-        var closestPairsLimit = 1000;
-        var largestCircuitCount = 3;
+        var part1ClosestPairsLimit = 1000L; // Nur diese x Paare sollen verbunden werden
+        var part1LargestCircuitCount = 3L; // Die x größten Circuits werden gewertet
 
         long part1CircuitMult = 1L;
 
@@ -33,7 +33,7 @@ public class Day08 extends Application {
 
 //        System.out.println(boxes);
 
-        var shortestConnections = getTopClosestBoxPairs(boxes, closestPairsLimit);
+        var shortestConnections = getTopClosestBoxPairs(boxes, part1ClosestPairsLimit);
 
 //        System.out.println(shortestConnections);
 
@@ -79,7 +79,7 @@ public class Day08 extends Application {
 
         circuits.sort((c1, c2) -> c2.boxes.size() - c1.boxes.size());
 
-        for(int p1I = 0; p1I < largestCircuitCount; p1I++) {
+        for(int p1I = 0; p1I < part1LargestCircuitCount; p1I++) {
             part1CircuitMult *= circuits.get(p1I).boxes.size();
         }
 
@@ -93,7 +93,7 @@ public class Day08 extends Application {
 //        System.out.printf("Part 2 Paths: %d\n", part2Paths);
     }
 
-    public List<BoxPair> getTopClosestBoxPairs(List<Box> points, int limit) {
+    public List<BoxPair> getTopClosestBoxPairs(List<Box> points, Long limit) {
         List<BoxPair> allBoxPairs = new ArrayList<>();
 
         // Alle Paare durchlaufen (ohne Dopplungen und ohne Punkt mit sich selbst)
@@ -103,7 +103,7 @@ public class Day08 extends Application {
             }
         }
 
-        // Sortieren und die ersten 10 nehmen
+        // Sortieren und die ersten x nehmen
         return allBoxPairs.stream()
                 .sorted()
                 .limit(limit)
