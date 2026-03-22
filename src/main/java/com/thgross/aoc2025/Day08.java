@@ -9,7 +9,7 @@ import java.util.List;
 
 public class Day08 extends Application {
 
-    String inputFilename = "aoc2025/input08.txt";
+    String inputFilename = "aoc2025/input08-t1.txt";
 
     static void main() {
         var app = (new Day08());
@@ -19,7 +19,7 @@ public class Day08 extends Application {
     @Override
     protected void calcAll(List<String> lines) throws IOException {
 
-        var part1ClosestPairsLimit = 1000L; // Nur diese x Paare sollen verbunden werden
+        var part1ClosestPairsLimit = inputFilename.contains("-t1") ? 10: 1000L; // Nur diese x Paare sollen verbunden werden
         var part1LargestCircuitCount = 3L; // Die x größten Circuits werden gewertet
 
         long part1CircuitMult = 1L;
@@ -48,31 +48,7 @@ public class Day08 extends Application {
                 continue;
             }
 
-            Circuit circuit;
-            boolean circuitIsNew = false;
-
-            if (conn.b1.circuit == null) {
-                circuit = new Circuit();
-                circuitIsNew = true;
-                circuit.addBox(conn.b1);
-            } else {
-                circuit = conn.b1.circuit;
-            }
-            // Alle Boxen aus conn.b2.circuit zum conn.b1.circuit packen
-            if (conn.b2.circuit == null) {
-                circuit.addBox(conn.b2);
-            } else {
-                var b2Circuit = conn.b2.circuit;
-                for (Box boxC2 : conn.b2.circuit.boxes) {
-                    circuit.addBox(boxC2);
-                }
-                circuits.remove(b2Circuit);
-            }
-
-            if (circuitIsNew) {
-                circuits.add(circuit);
-            }
-
+            conn.b1.addCircuit(conn.b2, circuits);
 //            System.out.println(String.format("*** Iteration %d:", i));
 //            System.out.println(circuits);
         }
@@ -117,6 +93,33 @@ public class Day08 extends Application {
         public Box(double x, double y, double z) {
             pos = new Point3D(x, y, z);
             circuit = null;
+        }
+
+        public void addCircuit(Box sourceBox, List<Circuit> circuits) {
+            Circuit targetCircuit;
+            boolean targetCircuitIsNew = false;
+
+            if (circuit == null) {
+                targetCircuit = new Circuit();
+                targetCircuitIsNew = true;
+                targetCircuit.addBox(this);
+            } else {
+                targetCircuit = circuit;
+            }
+            // Alle Boxen aus conn.b2.circuit zum circuit packen
+            if (sourceBox.circuit == null) {
+                targetCircuit.addBox(sourceBox);
+            } else {
+                var b2Circuit = sourceBox.circuit;
+                for (Box boxC2 : sourceBox.circuit.boxes) {
+                    targetCircuit.addBox(boxC2);
+                }
+                circuits.remove(b2Circuit);
+            }
+
+            if (targetCircuitIsNew) {
+                circuits.add(targetCircuit);
+            }
         }
 
         public String toString() {
