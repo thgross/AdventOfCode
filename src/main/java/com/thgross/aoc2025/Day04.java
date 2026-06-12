@@ -1,7 +1,6 @@
 package com.thgross.aoc2025;
 
 import com.thgross.aoc.Application;
-import org.checkerframework.checker.nullness.qual.NonNull;
 
 import java.io.IOException;
 import java.util.List;
@@ -52,7 +51,7 @@ public class Day04 extends Application {
         System.out.printf("Part 2 rolls: %d\n", part2Rolls);
     }
 
-    private int markAccessible(char[] @NonNull [] map) {
+    private int markAccessible(char[][] map) {
         int rolls = 0;
         for (int row = 0; row < map.length; row++) {
             for (int col = 0; col < map[row].length; col++) {
@@ -65,7 +64,7 @@ public class Day04 extends Application {
         return rolls;
     }
 
-    private int removeAccessible(char[] @NonNull [] map) {
+    private int removeAccessible(char[][] map) {
         int removed = 0;
         for (int row = 0; row < map.length; row++) {
             for (int col = 0; col < map[row].length; col++) {
@@ -78,7 +77,7 @@ public class Day04 extends Application {
         return removed;
     }
 
-    private boolean isAccessible(char[] @NonNull [] map, int row, int col) {
+    private boolean isAccessible(char[][] map, int row, int col) {
 
         if (map[row][col] != ROLL) {
             return false;
