@@ -5,6 +5,7 @@ target/
 **/input*
 !**/input??-t*
 _tmp/image-*.*
+_tmp/*.png
 _tmp/*.mp4
 
 ### IntelliJ IDEA ###
