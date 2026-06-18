@@ -49,6 +49,11 @@ public class Day10 extends Application {
         }
     }
 
+    public static class BfsState {
+        short current;
+        int depth;
+    }
+
     @Override
     protected void calcAll(List<String> lines) throws IOException {
 
@@ -99,6 +104,18 @@ public class Day10 extends Application {
 
         System.out.println("------------------------------------");
         System.out.printf("Part 1: Presses: %d\n", part1Presses);
+    }
+
+    public List<BfsState> bfs(short target, short current, int depth, short[] buttons) {
+        var ret =  new ArrayList<BfsState>();
+        for (short button : buttons) {
+            if ((current ^ button) == target) {
+                // Gefunden, also abbrechen
+            }
+            // neues Element für Rückgabe erzeugen
+        }
+
+        return ret;
     }
 
     public static String getBitsReversed(short wert) {
