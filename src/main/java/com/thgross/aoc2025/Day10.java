@@ -23,9 +23,29 @@ public class Day10 extends Application {
     class Machine {
         short target = 0;
         short[] buttons;
+        List<Short> joltage = new ArrayList<>();
 
         public String toString() {
-            return target + " " + buttons + "\n";
+            var sb = new StringBuilder();
+            sb.append("[");
+            sb.append(getBitsReversed(target));
+            sb.append("]");
+            sb.append(" ");
+            for (int i = 0; i < buttons.length; i++) {
+                sb.append("(");
+                sb.append(getBitsReversed(buttons[i]));
+                sb.append(")");
+            }
+            sb.append(" ");
+            sb.append("{");
+            for (Short j : joltage) {
+                sb.append(j);
+                sb.append(",");
+            }
+            sb.append("}");
+            sb.append(" ");
+            sb.append("\n");
+            return sb.toString();
         }
     }
 
@@ -60,10 +80,15 @@ public class Day10 extends Application {
 
                 } else if (part.startsWith("{")) {
                     // joltage Requirements
+                    var partsJ = part.substring(1, part.length() - 1).split(",");
+                    for (String s : partsJ) {
+                        m.joltage.add((short) Integer.parseInt(s));
+                    }
                 }
-                m.buttons = ArrayUtils.toPrimitive(tmpButtons.toArray(new Short[tmpButtons.size()]));
-//                m.buttons = Arrays.stream(tmpButtons).mapToInt(Short::shortValue).toArray();
-  //              m.buttons = Arrays.stream(tmpButtons).mapToInt(Short::shortValue).toArray();
+                m.buttons = new short[tmpButtons.size()];
+                for (int i = 0; i < tmpButtons.size(); i++) {
+                    m.buttons[i] = tmpButtons.get(i);
+                }
             }
             machines.add(m);
         }
@@ -76,4 +101,21 @@ public class Day10 extends Application {
         System.out.printf("Part 1: Presses: %d\n", part1Presses);
     }
 
+    public static String getBitsReversed(short wert) {
+        StringBuilder sb = new StringBuilder();
+
+        // Wir starten beim niedrigstwertigen Bit (0) und gehen hoch bis 15
+        for (int i = 0; i <= 15; i++) {
+            int bit = (wert >> i) & 1;
+
+            // Bit anhängen
+            if (bit == 1) {
+                sb.append("#");
+            } else {
+                sb.append(".");
+            }
+        }
+
+        return sb.toString();
+    }
 }
