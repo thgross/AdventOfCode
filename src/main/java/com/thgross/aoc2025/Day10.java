@@ -106,6 +106,8 @@ public class Day10 extends Application {
         System.out.printf("Part 1: Presses: %d\n", part1Presses);
     }
 
+    // TODO: Statt 'short current' besser 'List<BfsState>' übergeben;
+    //  Bei Start ein Einzelement in der Liste übergeben
     public List<BfsState> bfs(short target, short current, int depth, short[] buttons) {
         var ret =  new ArrayList<BfsState>();
         for (short button : buttons) {
