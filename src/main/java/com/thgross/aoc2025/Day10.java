@@ -2,18 +2,17 @@ package com.thgross.aoc2025;
 
 import com.thgross.aoc.Application;
 
-import javax.imageio.ImageIO;
-import java.awt.*;
-import java.awt.image.BufferedImage;
-import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Arrays;
+import java.util.HashSet;
+import java.util.LinkedList;
 import java.util.List;
+import java.util.Queue;
+import java.util.Set;
 
 public class Day10 extends Application {
 
-    String inputFilename = "aoc2025/input10-t1.txt";
+    String inputFilename = "aoc2025/input10.txt";
 
     static void main() {
         var app = (new Day10());
@@ -47,11 +46,6 @@ public class Day10 extends Application {
             sb.append("\n");
             return sb.toString();
         }
-    }
-
-    public static class BfsState {
-        short current;
-        int depth;
     }
 
     @Override
@@ -99,25 +93,43 @@ public class Day10 extends Application {
         }
 
         for (Machine machine : machines) {
-            System.out.printf(machine.toString());
+            int presses = bfs(machine.target, machine.buttons);
+            System.out.printf("%s => %d presses%n", machine, presses);
+            if (presses >= 0) {
+                part1Presses += presses;
+            }
         }
 
         System.out.println("------------------------------------");
         System.out.printf("Part 1: Presses: %d\n", part1Presses);
     }
 
-    // TODO: Statt 'short current' besser 'List<BfsState>' übergeben;
-    //  Bei Start ein Einzelement in der Liste übergeben
-    public List<BfsState> bfs(short target, short current, int depth, short[] buttons) {
-        var ret =  new ArrayList<BfsState>();
-        for (short button : buttons) {
-            if ((current ^ button) == target) {
-                // Gefunden, also abbrechen
+    public int bfs(short target, short[] buttons) {
+        if (target == 0) return 0;
+
+        Queue<int[]> queue = new LinkedList<>();
+        Set<Integer> visited = new HashSet<>();
+        queue.add(new int[]{0, 0});
+        visited.add(0);
+
+        while (!queue.isEmpty()) {
+            var current = queue.poll();
+            int state = current[0];
+            int depth = current[1];
+
+            for (short button : buttons) {
+                int newState = state ^ button;
+                if (newState == target) {
+                    return depth + 1;
+                }
+                if (!visited.contains(newState)) {
+                    visited.add(newState);
+                    queue.add(new int[]{newState, depth + 1});
+                }
             }
-            // neues Element für Rückgabe erzeugen
         }
 
-        return ret;
+        return -1;
     }
 
     public static String getBitsReversed(short wert) {
